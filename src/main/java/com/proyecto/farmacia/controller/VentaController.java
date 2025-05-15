@@ -1,22 +1,28 @@
 package com.proyecto.farmacia.controller;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.io.FileInputStream;
 import com.proyecto.farmacia.DTOs.Ventas.VentaDetalleDTO;
 import com.proyecto.farmacia.DTOs.Ventas.VentaGetDTO;
 import com.proyecto.farmacia.DTOs.Ventas.VentaMapper;
 import com.proyecto.farmacia.DTOs.Ventas.VentaPostDTO;
+import com.proyecto.farmacia.PDF.PdfGenerator;
 import com.proyecto.farmacia.entity.Cliente;
 import com.proyecto.farmacia.entity.DetalleVenta;
 import com.proyecto.farmacia.entity.Empleado;
 import com.proyecto.farmacia.entity.Medicamento;
 import com.proyecto.farmacia.entity.Venta;
 import com.proyecto.farmacia.service.ClienteService;
-import com.proyecto.farmacia.service.DetalleVentaService;
 import com.proyecto.farmacia.service.EmpleadoService;
 import com.proyecto.farmacia.service.MedicamentoService;
 import com.proyecto.farmacia.service.VentasService;
 import com.proyecto.farmacia.util.ApiResponse;
 import com.proyecto.farmacia.util.EstadoVenta;
 import jakarta.validation.Valid;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +80,35 @@ public class VentaController {
         }
     }
 
+    @GetMapping("/{id}/factura")
+    public ResponseEntity<?> descargarFactura(@PathVariable Integer id) {
+        try {
+            Venta venta = ventasService.obtener(id)
+                    .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
+
+            String rutaPDF = PdfGenerator.generarFacturaPDF(venta);
+
+            File pdfFile = new File(rutaPDF);
+            if (!pdfFile.exists()) {
+                return new ResponseEntity<>(new ApiResponse<>("Factura no encontrada", null, false), HttpStatus.NOT_FOUND);
+            }
+
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(pdfFile));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + pdfFile.getName());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(pdfFile.length())
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(resource);
+
+        } catch (FileNotFoundException e) {
+            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> cargar(@Valid @RequestBody VentaPostDTO ventaDTO) {
         try {
@@ -100,7 +135,6 @@ public class VentaController {
                 medicamento.setStock(medicamento.getStock() - detalleDTO.getCantidad());
                 medicamentoService.guardar(medicamento);
 
-                // Crear detalle
                 DetalleVenta detalle = new DetalleVenta();
                 detalle.setCantidad(detalleDTO.getCantidad());
                 detalle.setPrecioUnitario(detalleDTO.getPrecioUnitario());
@@ -148,7 +182,7 @@ public class VentaController {
             }
 
             venta.setEstado(EstadoVenta.ANULADA);
-            venta.setActivo(false);  
+            venta.setActivo(false);
             Venta anulada = ventasService.guardar(venta);
 
             VentaGetDTO dto = VentaMapper.toDTO(anulada);
