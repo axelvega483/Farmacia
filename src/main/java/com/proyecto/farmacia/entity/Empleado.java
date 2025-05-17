@@ -23,6 +23,7 @@ import lombok.Setter;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
@@ -31,7 +32,7 @@ import jakarta.validation.constraints.Size;
 @NoArgsConstructor
 @Entity
 @Table(name = "empleado")
-public class Empleado {
+public class Empleado implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
