@@ -69,8 +69,8 @@ public class Venta implements Serializable {
 
     @Column(nullable = false)
     private Boolean activo = true;
-    
-     @Enumerated(EnumType.STRING)
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoVenta estado = EstadoVenta.FACTURADA;
 }

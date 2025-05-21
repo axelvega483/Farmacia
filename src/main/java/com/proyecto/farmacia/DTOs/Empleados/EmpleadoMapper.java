@@ -11,6 +11,8 @@ public class EmpleadoMapper {
         dto.setDni(empleado.getDni());
         dto.setEmail(empleado.getEmail());
         dto.setRol(empleado.getRol());
+        dto.setActivo(empleado.getActivo());
+        dto.setId(empleado.getId());
 
         List<EmpleadoVentaDTO> ventas = empleado.getVentas().stream()
                 .map(venta -> new EmpleadoVentaDTO(

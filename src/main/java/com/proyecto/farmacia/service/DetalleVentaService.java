@@ -8,25 +8,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DetalleVentaService {
+
     @Autowired
     private DetalleVentaRepository repo;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public List<DetalleVenta>obtenerById(List<Integer> id){
+
+    public List<DetalleVenta> obtenerById(List<Integer> id) {
         return repo.findAllById(id);
     }
 }
