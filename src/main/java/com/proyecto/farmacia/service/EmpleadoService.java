@@ -6,11 +6,15 @@ import com.proyecto.farmacia.repository.EmpleadoRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmpleadoService implements EmpleadoInterfaz {
+public class EmpleadoService implements EmpleadoInterfaz, UserDetailsService {
 
     @Autowired
     private EmpleadoRepository repo;
@@ -49,5 +53,21 @@ public class EmpleadoService implements EmpleadoInterfaz {
 
     public Optional<Empleado> findByCorreo(String email) {
         return repo.findByCorreo(email);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Empleado empleado = repo.findByCorreo(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
+
+        return new org.springframework.security.core.userdetails.User(
+                empleado.getEmail(),
+                empleado.getPassword(),
+                empleado.getActivo(), // enabled
+                true, // accountNonExpired
+                true, // credentialsNonExpired
+                true, // accountNonLocked
+                List.of(new SimpleGrantedAuthority("ROLE_" + empleado.getRol().name()))
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.proyecto.farmacia.DTOs.Empleados.EmpleadoGetDTO;
 import com.proyecto.farmacia.DTOs.Empleados.EmpleadoMapper;
 import com.proyecto.farmacia.DTOs.Empleados.EmpleadoPostDTO;
 import com.proyecto.farmacia.DTOs.Empleados.EmpleadoUpdateDTO;
+import com.proyecto.farmacia.Security.JwtUtil;
 import com.proyecto.farmacia.entity.Empleado;
 import com.proyecto.farmacia.entity.Venta;
 import com.proyecto.farmacia.service.EmpleadoService;
@@ -37,6 +38,9 @@ public class EmpleadoController {
 
     @Autowired
     private VentasService ventaService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -77,7 +81,8 @@ public class EmpleadoController {
             if (optionalEmpleado.isPresent()) {
                 Empleado empleado = optionalEmpleado.get();
                 if (empleado.getActivo() && passwordEncoder.matches(postDTO.getPassword(), empleado.getPassword())) {
-                    return new ResponseEntity<>(new ApiResponse<>("Login correcto", null, true), HttpStatus.OK);
+                    String token = jwtUtil.generateToken(empleado);
+                    return new ResponseEntity<>(new ApiResponse<>("Login correcto", token, true), HttpStatus.OK);
                 }
             }
             return new ResponseEntity<>(new ApiResponse<>("Credenciales no encontradas", null, false), HttpStatus.UNAUTHORIZED);
