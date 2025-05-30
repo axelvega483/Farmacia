@@ -60,7 +60,7 @@ public class ClienteController {
                 ClientesGetDTO dto = ClienteMapper.toDTO(cliente);
                 return new ResponseEntity<>(new ApiResponse<>("Cliente encontrado por id", dto, true), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new ApiResponse<>("No existe cliente", null, false), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new ApiResponse<>("No existe cliente", null, false), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -113,7 +113,7 @@ public class ClienteController {
             if (ventas.size() != clienteDTO.getVentasId().size()) {
                 return new ResponseEntity<>(new ApiResponse<>("Uno o más ventas no existen", null, false), HttpStatus.BAD_REQUEST);
             }
-       
+
             cliente.setActivo(Boolean.TRUE);
             cliente.setDni(clienteDTO.getDni());
             cliente.setEmail(clienteDTO.getEmail());
@@ -134,7 +134,7 @@ public class ClienteController {
             Cliente cliente = clienteService.obtener(id).orElse(null);
             if (cliente != null) {
                 clienteService.eliminar(cliente.getId());
-               ClientesGetDTO dto = ClienteMapper.toDTO(clienteService.guardar(cliente));
+                ClientesGetDTO dto = ClienteMapper.toDTO(clienteService.guardar(cliente));
                 return new ResponseEntity<>(new ApiResponse<>("Cliente eliminado", dto, true), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new ApiResponse<>("Cliente no encontrado", null, false), HttpStatus.NOT_FOUND);

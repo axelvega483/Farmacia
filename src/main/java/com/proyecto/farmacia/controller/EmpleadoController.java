@@ -11,10 +11,12 @@ import com.proyecto.farmacia.service.VentasService;
 import com.proyecto.farmacia.util.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +37,9 @@ public class EmpleadoController {
 
     @Autowired
     private VentasService ventaService;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
@@ -60,6 +65,22 @@ public class EmpleadoController {
             } else {
                 return new ResponseEntity<>(new ApiResponse<>("Empleado no encontrado", null, false), HttpStatus.NOT_FOUND);
             }
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody EmpleadoPostDTO postDTO) {
+        try {
+            Optional<Empleado> optionalEmpleado = empleadoService.findByCorreo(postDTO.getEmail());
+            if (optionalEmpleado.isPresent()) {
+                Empleado empleado = optionalEmpleado.get();
+                if (empleado.getActivo() && passwordEncoder.matches(postDTO.getPassword(), empleado.getPassword())) {
+                    return new ResponseEntity<>(new ApiResponse<>("Login correcto", null, true), HttpStatus.OK);
+                }
+            }
+            return new ResponseEntity<>(new ApiResponse<>("Credenciales no encontradas", null, false), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
