@@ -3,8 +3,6 @@ package com.proyecto.farmacia;
 import com.proyecto.farmacia.entity.Empleado;
 import com.proyecto.farmacia.service.EmpleadoService;
 import com.proyecto.farmacia.util.RolEmpleado;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
