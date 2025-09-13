@@ -2,15 +2,12 @@ package com.proyecto.farmacia.DTOs.Medicamentos;
 
 import com.proyecto.farmacia.entity.Proveedor;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class MedicamentoUpdateDTO {
-
-    private Integer id;
 
     private String nombre;
 
@@ -28,5 +25,4 @@ public class MedicamentoUpdateDTO {
 
     private Proveedor proveedor;
 
-    private List<Integer> detalleVentasID;
 }

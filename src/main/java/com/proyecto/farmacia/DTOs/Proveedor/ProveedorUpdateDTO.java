@@ -1,6 +1,5 @@
 package com.proyecto.farmacia.DTOs.Proveedor;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,5 @@ public class ProveedorUpdateDTO {
 
     private String email;
 
-    private List<Integer> medicamentosId;
-
+    private Boolean activo;
 }

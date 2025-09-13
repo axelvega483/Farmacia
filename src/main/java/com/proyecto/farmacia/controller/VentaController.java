@@ -108,90 +108,90 @@ public class VentaController {
             return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @PostMapping
-    public ResponseEntity<?> cargar(@Valid @RequestBody VentaPostDTO ventaDTO) {
-        try {
-            Cliente cliente = clienteService.obtener(ventaDTO.getClienteId())
-                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-            Empleado empleado = empleadoService.obtener(ventaDTO.getEmpleadoId())
-                    .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
-
-            List<DetalleVenta> detallesFinales = new ArrayList<>();
-            double totalVenta = 0;
-
-            for (VentaDetalleDTO detalleDTO : ventaDTO.getDetalles()) {
-                Medicamento medicamento = medicamentoService.obtener(detalleDTO.getMedicamentoId())
-                        .orElseThrow(() -> new RuntimeException("Medicamento no encontrado con ID: " + detalleDTO.getMedicamentoId()));
-
-                if (!medicamento.getActivo()) {
-                    return ResponseEntity.badRequest().body(new ApiResponse<>("Medicamento inactivo", null, false));
-                }
-
-                if (medicamento.getStock() < detalleDTO.getCantidad()) {
-                    return ResponseEntity.badRequest().body(new ApiResponse<>("Stock insuficiente para: " + medicamento.getNombre(), null, false));
-                }
-
-                medicamento.setStock(medicamento.getStock() - detalleDTO.getCantidad());
-                medicamentoService.guardar(medicamento);
-
-                DetalleVenta detalle = new DetalleVenta();
-                detalle.setCantidad(detalleDTO.getCantidad());
-                detalle.setPrecioUnitario(detalleDTO.getPrecioUnitario());
-                detalle.setMedicamento(medicamento);
-                detalle.setVenta(null);
-
-                detallesFinales.add(detalle);
-                totalVenta += detalleDTO.getCantidad() * detalleDTO.getPrecioUnitario();
-            }
-
-            Venta venta = new Venta();
-            venta.setCliente(cliente);
-            venta.setEmpleado(empleado);
-            venta.setFecha(ventaDTO.getFecha());
-            venta.setDetalleventas(detallesFinales);
-            venta.setTotal(totalVenta);
-
-            for (DetalleVenta d : detallesFinales) {
-                d.setVenta(venta);
-            }
-
-            Venta ventaGuardada = ventasService.guardar(venta);
-            VentaGetDTO dto = VentaMapper.toDTO(ventaGuardada);
-            return ResponseEntity.ok(new ApiResponse<>("Venta creada", dto, true));
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping("{id}/anular")
-    public ResponseEntity<?> anular(@PathVariable Integer id) {
-        try {
-            Venta venta = ventasService.obtener(id)
-                    .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
-
-            if (venta.getEstado() == EstadoVenta.ANULADA) {
-                return new ResponseEntity<>(new ApiResponse<>("La venta ya está anulada", null, false), HttpStatus.BAD_REQUEST);
-            }
-
-            for (DetalleVenta d : venta.getDetalleventas()) {
-                Medicamento m = d.getMedicamento();
-                m.setStock(m.getStock() + d.getCantidad());
-                medicamentoService.guardar(m);
-            }
-
-            venta.setEstado(EstadoVenta.ANULADA);
-            venta.setActivo(false);
-            Venta anulada = ventasService.guardar(venta);
-
-            VentaGetDTO dto = VentaMapper.toDTO(anulada);
-            return new ResponseEntity<>(new ApiResponse<>("Venta anulada", dto, true), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(new ApiResponse<>(e.getMessage(), null, false), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//
+//    @PostMapping
+//    public ResponseEntity<?> cargar(@Valid @RequestBody VentaPostDTO ventaDTO) {
+//        try {
+//            Cliente cliente = clienteService.obtener(ventaDTO.getClienteId())
+//                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+//            Empleado empleado = empleadoService.obtener(ventaDTO.getEmpleadoId())
+//                    .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+//
+//            List<DetalleVenta> detallesFinales = new ArrayList<>();
+//            double totalVenta = 0;
+//
+//            for (VentaDetalleDTO detalleDTO : ventaDTO.getDetalles()) {
+//                Medicamento medicamento = medicamentoService.obtener(detalleDTO.getMedicamentoId())
+//                        .orElseThrow(() -> new RuntimeException("Medicamento no encontrado con ID: " + detalleDTO.getMedicamentoId()));
+//
+//                if (!medicamento.getActivo()) {
+//                    return ResponseEntity.badRequest().body(new ApiResponse<>("Medicamento inactivo", null, false));
+//                }
+//
+//                if (medicamento.getStock() < detalleDTO.getCantidad()) {
+//                    return ResponseEntity.badRequest().body(new ApiResponse<>("Stock insuficiente para: " + medicamento.getNombre(), null, false));
+//                }
+//
+//                medicamento.setStock(medicamento.getStock() - detalleDTO.getCantidad());
+//                medicamentoService.guardar(medicamento);
+//
+//                DetalleVenta detalle = new DetalleVenta();
+//                detalle.setCantidad(detalleDTO.getCantidad());
+//                detalle.setPrecioUnitario(detalleDTO.getPrecioUnitario());
+//                detalle.setMedicamento(medicamento);
+//                detalle.setVenta(null);
+//
+//                detallesFinales.add(detalle);
+//                totalVenta += detalleDTO.getCantidad() * detalleDTO.getPrecioUnitario();
+//            }
+//
+//            Venta venta = new Venta();
+//            venta.setCliente(cliente);
+//            venta.setEmpleado(empleado);
+//            venta.setFecha(ventaDTO.getFecha());
+//            venta.setDetalleventas(detallesFinales);
+//            venta.setTotal(totalVenta);
+//
+//            for (DetalleVenta d : detallesFinales) {
+//                d.setVenta(venta);
+//            }
+//
+//            Venta ventaGuardada = ventasService.guardar(venta);
+//            VentaGetDTO dto = VentaMapper.toDTO(ventaGuardada);
+//            return ResponseEntity.ok(new ApiResponse<>("Venta creada", dto, true));
+//
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @PutMapping("{id}/anular")
+//    public ResponseEntity<?> anular(@PathVariable Integer id) {
+//        try {
+//            Venta venta = ventasService.obtener(id)
+//                    .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
+//
+//            if (venta.getEstado() == EstadoVenta.ANULADA) {
+//                return new ResponseEntity<>(new ApiResponse<>("La venta ya está anulada", null, false), HttpStatus.BAD_REQUEST);
+//            }
+//
+//            for (DetalleVenta d : venta.getDetalleventas()) {
+//                Medicamento m = d.getMedicamento();
+//                m.setStock(m.getStock() + d.getCantidad());
+//                medicamentoService.guardar(m);
+//            }
+//
+//            venta.setEstado(EstadoVenta.ANULADA);
+//            venta.setActivo(false);
+//            Venta anulada = ventasService.guardar(venta);
+//
+//            VentaGetDTO dto = VentaMapper.toDTO(anulada);
+//            return new ResponseEntity<>(new ApiResponse<>("Venta anulada", dto, true), HttpStatus.OK);
+//        } catch (RuntimeException e) {
+//            return new ResponseEntity<>(new ApiResponse<>(e.getMessage(), null, false), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 }

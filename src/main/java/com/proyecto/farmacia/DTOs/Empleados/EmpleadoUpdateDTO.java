@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class EmpleadoUpdateDTO {
 
-    private Integer id;
 
     private String nombre;
 

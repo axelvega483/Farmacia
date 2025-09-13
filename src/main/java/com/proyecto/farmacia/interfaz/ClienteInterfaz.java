@@ -1,17 +1,24 @@
 package com.proyecto.farmacia.interfaz;
 
+import com.proyecto.farmacia.DTOs.Clientes.ClientePostDTO;
+import com.proyecto.farmacia.DTOs.Clientes.ClienteUpdateDTO;
+import com.proyecto.farmacia.DTOs.Clientes.ClientesGetDTO;
 import com.proyecto.farmacia.entity.Cliente;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface ClienteInterfaz {
+    ClientesGetDTO create(ClientePostDTO post);
 
-    public Cliente guardar(Cliente cliente);
+    boolean findDniActivo(String dni);
 
-    public void eliminar(Integer id);
+    ClientesGetDTO update(Integer id, ClienteUpdateDTO put);
 
-    public Optional<Cliente> obtener(Integer id);
+    void delete(Integer id);
 
-    public List<Cliente> listar();
+    Optional<ClientesGetDTO> findById(Integer id);
+
+    List<ClientesGetDTO> findAll();
 
 }

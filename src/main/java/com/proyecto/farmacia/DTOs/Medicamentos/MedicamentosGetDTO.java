@@ -1,5 +1,6 @@
 package com.proyecto.farmacia.DTOs.Medicamentos;
 
+import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
 import com.proyecto.farmacia.entity.Proveedor;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +19,6 @@ public class MedicamentosGetDTO {
     private LocalDate fechaVencimiento;
     private Boolean recetaRequerida;
     private Boolean activo;
-    private Proveedor proveedor;
+    private ProveedorGetDTO proveedor;
      private List<MedicamentoDetalleDTO> detalleVentasID;
 }

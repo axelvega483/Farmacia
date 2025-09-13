@@ -1,5 +1,6 @@
 package com.proyecto.farmacia;
 
+import com.proyecto.farmacia.DTOs.Empleados.EmpleadoGetDTO;
 import com.proyecto.farmacia.entity.Empleado;
 import com.proyecto.farmacia.service.EmpleadoService;
 import com.proyecto.farmacia.util.RolEmpleado;
@@ -20,7 +21,7 @@ public class FarmaciaApplication {
     CommandLineRunner initDatabase(EmpleadoService empleadoService
     ) {
         return args -> {
-            List<Empleado> empleados = empleadoService.listar();
+            List<EmpleadoGetDTO> empleados = empleadoService.findAll();
             if (empleados.isEmpty()) {
                 Empleado empleadoADMIN = new Empleado();
                 empleadoADMIN.setRol(RolEmpleado.ADMIN);
@@ -29,7 +30,7 @@ public class FarmaciaApplication {
                 empleadoADMIN.setEmail("admin@admin.com");
                 empleadoADMIN.setDni("0");
 
-                empleadoService.guardar(empleadoADMIN);
+                empleadoService.save(empleadoADMIN);
                 System.out.println("Usuario administrador inicializado con éxito.");
             }
         };

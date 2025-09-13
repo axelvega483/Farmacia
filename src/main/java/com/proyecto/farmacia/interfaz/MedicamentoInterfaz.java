@@ -1,16 +1,26 @@
 package com.proyecto.farmacia.interfaz;
 
+import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoPostDTO;
+import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoUpdateDTO;
+import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentosGetDTO;
 import com.proyecto.farmacia.entity.Medicamento;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface MedicamentoInterfaz {
 
-    public Medicamento guardar(Medicamento medicamento);
+    MedicamentosGetDTO create(MedicamentoPostDTO post);
 
-    public void eliminar(Integer id);
+    boolean medicamentoExiste(String nombre, Integer proveedorId);
 
-    public Optional<Medicamento> obtener(Integer id);
+    void delete(Integer id);
 
-    public List<Medicamento> listar();
+    Optional<MedicamentosGetDTO> findById(Integer id);
+
+    List<MedicamentosGetDTO> findAll();
+
+    List<MedicamentosGetDTO> findByName(String nombre);
+
+    MedicamentosGetDTO update(Integer id, MedicamentoUpdateDTO put);
 }

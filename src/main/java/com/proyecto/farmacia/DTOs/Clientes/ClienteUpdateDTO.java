@@ -1,6 +1,5 @@
 package com.proyecto.farmacia.DTOs.Clientes;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,5 @@ public class ClienteUpdateDTO {
 
     private String dni;
 
-    private List<Integer> ventasId;
-
-    private List<Integer> recetasId;
+    private Boolean activo;
 }

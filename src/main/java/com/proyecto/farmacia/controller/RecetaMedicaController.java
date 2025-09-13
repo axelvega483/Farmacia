@@ -67,82 +67,82 @@ public class RecetaMedicaController {
             return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @PostMapping()
-    public ResponseEntity<?> cargar(@Valid @RequestBody RecetaMedicaPostDTO recetaDto) {
-        try {
-            Cliente cliente = clienteService.obtener(recetaDto.getClienteId()).orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
-
-            List<Medicamento> medicamentos = medicamentoService.obtenerById(recetaDto.getMedicamentoIds());
-            if (medicamentos.size() != recetaDto.getMedicamentoIds().size()) {
-                return new ResponseEntity<>(new ApiResponse<>("Uno o más medicamentos no existen", null, false), HttpStatus.BAD_REQUEST);
-            }
-            if (recetaDto.getVigenteHasta().isBefore(recetaDto.getFecha())) {
-                return new ResponseEntity<>(new ApiResponse<>("La fecha de vigencia no puede ser anterior a la fecha de emisión", null, false), HttpStatus.BAD_REQUEST);
-            }
-            RecetaMedica receta = new RecetaMedica();
-            receta.setCliente(cliente);
-            receta.setFecha(recetaDto.getFecha());
-            receta.setMedicamentos(medicamentos);
-            receta.setMedico(recetaDto.getMedico());
-            receta.setVigenteHasta(recetaDto.getVigenteHasta());
-            receta.setActivo(Boolean.TRUE);
-
-            RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaService.guardar(receta));
-
-            return new ResponseEntity<>(new ApiResponse<>("Receta medica cargada", dto, true), HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(new ApiResponse<>(e.getMessage(), null, false), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping("{id}")
-    public ResponseEntity<?> actualizar(@Valid @RequestBody RecetaMedicaUptadeDTO recetaMedicaDto, @PathVariable Integer id) {
-        try {
-            RecetaMedica recetaDB = recetaService.obtener(id).orElse(null);
-            if (recetaDB == null) {
-                return new ResponseEntity<>(new ApiResponse<>("Receta medica no encontrada", null, false), HttpStatus.NOT_FOUND);
-            }
-            Cliente cliente = clienteService.obtener(recetaMedicaDto.getClienteId()).orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
-            List<Medicamento> medicamentos = medicamentoService.obtenerById(recetaMedicaDto.getMedicamentoIds());
-            if (medicamentos.size() != recetaMedicaDto.getMedicamentoIds().size()) {
-                return new ResponseEntity<>(new ApiResponse<>("Uno o más medicamentos no existen", null, false), HttpStatus.BAD_REQUEST);
-            }
-            if (recetaMedicaDto.getVigenteHasta().isBefore(recetaMedicaDto.getFecha())) {
-                return new ResponseEntity<>(new ApiResponse<>("La fecha de vigencia no puede ser anterior a la fecha de emisión", null, false), HttpStatus.BAD_REQUEST);
-            }
-
-            recetaDB.setCliente(cliente);
-            recetaDB.setFecha(recetaMedicaDto.getFecha());
-            recetaDB.setMedico(recetaMedicaDto.getMedico());
-            recetaDB.setVigenteHasta(recetaMedicaDto.getVigenteHasta());
-            recetaDB.setMedicamentos(medicamentos);
-
-            RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaService.guardar(recetaDB));
-
-            return new ResponseEntity<>(new ApiResponse<>("Actualizada", dto, true), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Integer id
-    ) {
-        try {
-            RecetaMedica recetaMedica = recetaService.obtener(id).orElse(null);
-            if (recetaMedica != null) {
-                recetaService.eliminar(recetaMedica.getId());
-                RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaMedica);
-                return new ResponseEntity<>(new ApiResponse<>("receta medica eliminada", dto, true), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ApiResponse<>("no se pudo dar de baja", recetaMedica, false), HttpStatus.CONFLICT);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//
+//    @PostMapping()
+//    public ResponseEntity<?> cargar(@Valid @RequestBody RecetaMedicaPostDTO recetaDto) {
+//        try {
+//            Cliente cliente = clienteService.obtener(recetaDto.getClienteId()).orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
+//
+//            List<Medicamento> medicamentos = medicamentoService.obtenerById(recetaDto.getMedicamentoIds());
+//            if (medicamentos.size() != recetaDto.getMedicamentoIds().size()) {
+//                return new ResponseEntity<>(new ApiResponse<>("Uno o más medicamentos no existen", null, false), HttpStatus.BAD_REQUEST);
+//            }
+//            if (recetaDto.getVigenteHasta().isBefore(recetaDto.getFecha())) {
+//                return new ResponseEntity<>(new ApiResponse<>("La fecha de vigencia no puede ser anterior a la fecha de emisión", null, false), HttpStatus.BAD_REQUEST);
+//            }
+//            RecetaMedica receta = new RecetaMedica();
+//            receta.setCliente(cliente);
+//            receta.setFecha(recetaDto.getFecha());
+//            receta.setMedicamentos(medicamentos);
+//            receta.setMedico(recetaDto.getMedico());
+//            receta.setVigenteHasta(recetaDto.getVigenteHasta());
+//            receta.setActivo(Boolean.TRUE);
+//
+//            RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaService.guardar(receta));
+//
+//            return new ResponseEntity<>(new ApiResponse<>("Receta medica cargada", dto, true), HttpStatus.CREATED);
+//        } catch (IllegalArgumentException e) {
+//            return new ResponseEntity<>(new ApiResponse<>(e.getMessage(), null, false), HttpStatus.BAD_REQUEST);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @PutMapping("{id}")
+//    public ResponseEntity<?> actualizar(@Valid @RequestBody RecetaMedicaUptadeDTO recetaMedicaDto, @PathVariable Integer id) {
+//        try {
+//            RecetaMedica recetaDB = recetaService.obtener(id).orElse(null);
+//            if (recetaDB == null) {
+//                return new ResponseEntity<>(new ApiResponse<>("Receta medica no encontrada", null, false), HttpStatus.NOT_FOUND);
+//            }
+//            Cliente cliente = clienteService.obtener(recetaMedicaDto.getClienteId()).orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
+//            List<Medicamento> medicamentos = medicamentoService.obtenerById(recetaMedicaDto.getMedicamentoIds());
+//            if (medicamentos.size() != recetaMedicaDto.getMedicamentoIds().size()) {
+//                return new ResponseEntity<>(new ApiResponse<>("Uno o más medicamentos no existen", null, false), HttpStatus.BAD_REQUEST);
+//            }
+//            if (recetaMedicaDto.getVigenteHasta().isBefore(recetaMedicaDto.getFecha())) {
+//                return new ResponseEntity<>(new ApiResponse<>("La fecha de vigencia no puede ser anterior a la fecha de emisión", null, false), HttpStatus.BAD_REQUEST);
+//            }
+//
+//            recetaDB.setCliente(cliente);
+//            recetaDB.setFecha(recetaMedicaDto.getFecha());
+//            recetaDB.setMedico(recetaMedicaDto.getMedico());
+//            recetaDB.setVigenteHasta(recetaMedicaDto.getVigenteHasta());
+//            recetaDB.setMedicamentos(medicamentos);
+//
+//            RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaService.guardar(recetaDB));
+//
+//            return new ResponseEntity<>(new ApiResponse<>("Actualizada", dto, true), HttpStatus.OK);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @DeleteMapping("{id}")
+//    public ResponseEntity<?> eliminar(@PathVariable Integer id
+//    ) {
+//        try {
+//            RecetaMedica recetaMedica = recetaService.obtener(id).orElse(null);
+//            if (recetaMedica != null) {
+//                recetaService.eliminar(recetaMedica.getId());
+//                RecetaMedicaGetDTO dto = RecetaMedicaMapper.toDTO(recetaMedica);
+//                return new ResponseEntity<>(new ApiResponse<>("receta medica eliminada", dto, true), HttpStatus.OK);
+//            } else {
+//                return new ResponseEntity<>(new ApiResponse<>("no se pudo dar de baja", recetaMedica, false), HttpStatus.CONFLICT);
+//            }
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 }

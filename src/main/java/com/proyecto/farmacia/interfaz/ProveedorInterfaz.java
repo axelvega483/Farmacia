@@ -1,16 +1,21 @@
 package com.proyecto.farmacia.interfaz;
 
+import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
+import com.proyecto.farmacia.DTOs.Proveedor.ProveedorPostDTO;
+import com.proyecto.farmacia.DTOs.Proveedor.ProveedorUpdateDTO;
 import com.proyecto.farmacia.entity.Proveedor;
 import java.util.List;
 import java.util.Optional;
 
 public interface ProveedorInterfaz {
 
-    public Proveedor guardar(Proveedor proveedor);
+    ProveedorGetDTO create(ProveedorPostDTO post);
 
-    public void eliminar(Integer id);
+    ProveedorGetDTO update(Integer id, ProveedorUpdateDTO put);
 
-    public Optional<Proveedor> obtener(Integer id);
+     void delete(Integer id);
 
-    public List<Proveedor> listar();
+   Optional<ProveedorGetDTO> findById(Integer id);
+
+     List<ProveedorGetDTO> findAll();
 }
