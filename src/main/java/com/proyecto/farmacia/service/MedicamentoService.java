@@ -4,11 +4,9 @@ import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoMapper;
 import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoPostDTO;
 import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoUpdateDTO;
 import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentosGetDTO;
-import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
 import com.proyecto.farmacia.entity.Medicamento;
 import com.proyecto.farmacia.entity.Proveedor;
 import com.proyecto.farmacia.interfaz.MedicamentoInterfaz;
-import com.proyecto.farmacia.interfaz.ProveedorInterfaz;
 import com.proyecto.farmacia.repository.MedicamentoRepository;
 
 import java.util.ArrayList;
@@ -99,9 +97,5 @@ public class MedicamentoService implements MedicamentoInterfaz {
         medicamento = mapper.update(medicamento, put, proveedor);
         Medicamento saved = repo.save(medicamento);
         return mapper.toDTO(saved);
-    }
-
-    public List<Medicamento> findAllById(List<Integer> id) {
-        return repo.findAllById(id);
     }
 }

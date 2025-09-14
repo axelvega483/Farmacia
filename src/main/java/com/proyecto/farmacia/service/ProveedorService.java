@@ -76,8 +76,6 @@ public class ProveedorService implements ProveedorInterfaz {
         return dtos;
     }
 
-
-    
     public Optional<ProveedorGetDTO>findByName(String nombre){
         Optional<Proveedor> proveedor = repo.findByName(nombre).filter(Proveedor::getActivo);
         if (proveedor.isPresent()) {

@@ -127,8 +127,4 @@ public class RecetaMedicaService implements RecetaMedicaInterfaz {
         }
         return dtos;
     }
-
-    public List<RecetaMedica> obtenerById(List<Integer> id) {
-        return repo.findAllById(id);
-    }
 }

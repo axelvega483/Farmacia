@@ -8,20 +8,14 @@ import com.proyecto.farmacia.repository.EmpleadoRepository;
 import com.proyecto.farmacia.repository.MedicamentoRepository;
 import com.proyecto.farmacia.repository.VentaRepository;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import com.proyecto.farmacia.util.ApiResponse;
 import com.proyecto.farmacia.util.EstadoVenta;
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
