@@ -1,16 +1,20 @@
 package com.proyecto.farmacia.interfaz;
 
-import com.proyecto.farmacia.entity.RecetaMedica;
+import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaGetDTO;
+import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaPostDTO;
+import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaUptadeDTO;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface RecetaMedicaInterfaz {
+    RecetaMedicaGetDTO create(RecetaMedicaPostDTO post);
 
-    public RecetaMedica guardar(RecetaMedica recetaMedica);
-    
-    public Optional<RecetaMedica>obtener(Integer id);
-    
-    public void eliminar(Integer id);
-    
-    public List<RecetaMedica>listar();
+    RecetaMedicaGetDTO update(Integer id, RecetaMedicaUptadeDTO put);
+
+    Optional<RecetaMedicaGetDTO> findById(Integer id);
+
+    void delete(Integer id);
+
+    List<RecetaMedicaGetDTO> findAll();
 }

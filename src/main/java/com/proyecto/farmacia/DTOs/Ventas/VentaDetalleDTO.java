@@ -18,4 +18,5 @@ public class VentaDetalleDTO {
     private Integer cantidad;
     @NotNull
     private Double precioUnitario;
+    private Double subtotal;
 }

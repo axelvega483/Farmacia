@@ -19,7 +19,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public class Venta implements Serializable {
 
     @NotNull(message = "La fecha de la venta no puede estar vacía")
     @Column(nullable = false)
-    private LocalDateTime fecha;
+    private LocalDate fecha;
 
     @NotNull(message = "El total no puede estar vacío")
     @PositiveOrZero(message = "El total debe ser mayor o igual a cero")

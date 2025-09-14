@@ -1,7 +1,8 @@
 package com.proyecto.farmacia.DTOs.Ventas;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +12,7 @@ import lombok.Setter;
 public class VentaPostDTO {
 
     @NotNull
-    private Integer id;
-    @NotNull
-    private LocalDateTime fecha;
+    private LocalDate fecha;
     @NotNull
     private Double total;
     @NotNull
@@ -22,6 +21,4 @@ public class VentaPostDTO {
     private Integer clienteId;
     @NotNull
     private Integer empleadoId;
-    @NotNull
-    private Boolean activo;
 }

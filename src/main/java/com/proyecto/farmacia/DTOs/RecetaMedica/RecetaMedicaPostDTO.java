@@ -11,13 +11,10 @@ import lombok.Setter;
 public class RecetaMedicaPostDTO {
 
     @NotNull
-    private LocalDate fecha;
-
-    @NotNull
     private String medico;
 
     @NotNull
-    private Integer clienteId;
+    private Integer cliente;
 
     @NotNull
     private List<Integer> medicamentoIds;
