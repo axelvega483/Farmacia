@@ -67,7 +67,7 @@ Sistema de backend para la administración integral de una farmacia. Permite ges
 - **Validaciones en entidades** con mensajes personalizados.
 - **Seguridad en progreso**: sistema preparado para autenticación JWT.
 - **Modularidad y escalabilidad** para futuras integraciones (front-end, mobile, etc.).
-- **Código limpio y documentado**: siguiendo principios SOLID.
+- **Código limpio**: siguiendo principios SOLID.
 
 
 
