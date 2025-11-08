@@ -26,7 +26,7 @@ public class ProveedorService implements ProveedorInterfaz {
 
     @Override
     public ProveedorGetDTO create(ProveedorPostDTO post) {
-        if(findByName(post.getNombre()).isPresent()){
+        if (findByName(post.getNombre()).isPresent()) {
             throw new EntityExistsException("Proveedor existente");
         }
         Proveedor proveedor = mapper.create(post);
@@ -37,11 +37,11 @@ public class ProveedorService implements ProveedorInterfaz {
     @Override
     public ProveedorGetDTO update(Integer id, ProveedorUpdateDTO put) {
         Proveedor proveedor = repo.findById(id).orElse(null);
-        if(proveedor==null){
+        if (proveedor == null) {
             throw new EntityExistsException("Proveedor no encontrado");
         }
-        proveedor=mapper.update(proveedor,put);
-        Proveedor saved=repo.save(proveedor);
+        proveedor = mapper.update(proveedor, put);
+        Proveedor saved = repo.save(proveedor);
         return mapper.toDTO(saved);
     }
 
@@ -76,7 +76,8 @@ public class ProveedorService implements ProveedorInterfaz {
         return dtos;
     }
 
-    public Optional<ProveedorGetDTO>findByName(String nombre){
+    @Override
+    public Optional<ProveedorGetDTO> findByName(String nombre) {
         Optional<Proveedor> proveedor = repo.findByName(nombre).filter(Proveedor::getActivo);
         if (proveedor.isPresent()) {
             ProveedorGetDTO dto = mapper.toDTO(proveedor.get());
@@ -84,5 +85,5 @@ public class ProveedorService implements ProveedorInterfaz {
         }
         return Optional.empty();
     }
-    
+
 }

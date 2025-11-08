@@ -1,7 +1,7 @@
 package com.proyecto.farmacia.DTOs.Medicamentos;
 
 import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
-import com.proyecto.farmacia.entity.Proveedor;
+
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;

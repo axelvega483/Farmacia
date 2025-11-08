@@ -28,7 +28,7 @@ public class FarmaciaApplication {
                 empleadoADMIN.setNombre("ADMIN");
                 empleadoADMIN.setPassword("admin");
                 empleadoADMIN.setEmail("admin@admin.com");
-                empleadoADMIN.setDni("0");
+                empleadoADMIN.setDni("123456789");
 
                 empleadoService.save(empleadoADMIN);
                 System.out.println("Usuario administrador inicializado con éxito.");

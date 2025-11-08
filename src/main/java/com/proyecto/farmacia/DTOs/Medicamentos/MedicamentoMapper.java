@@ -48,7 +48,6 @@ public class MedicamentoMapper {
         medicamento.setPrecio(post.getPrecio());
         medicamento.setProveedor(post.getProveedor());
         medicamento.setRecetaRequerida(post.getRecetaRequerida());
-        medicamento.setProveedor(post.getProveedor());
         medicamento.setStock(post.getStock());
         medicamento.setDetalleVentas(Collections.emptyList());
         return medicamento;

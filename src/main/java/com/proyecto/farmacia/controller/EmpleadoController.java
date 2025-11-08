@@ -5,7 +5,12 @@ import com.proyecto.farmacia.DTOs.Empleados.EmpleadoPostDTO;
 import com.proyecto.farmacia.DTOs.Empleados.EmpleadoUpdateDTO;
 import com.proyecto.farmacia.entity.Empleado;
 import com.proyecto.farmacia.interfaz.EmpleadoInterfaz;
-import com.proyecto.farmacia.util.ApiResponse;
+import com.proyecto.farmacia.util.CustomApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -27,85 +32,106 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("empleado")
+@Tag(name = "Empleados", description = "Controlador para operaciones de empleados")
 public class EmpleadoController {
 
     @Autowired
     private EmpleadoInterfaz empleadoService;
 
-
+    @Operation(summary = "Listar todos los empleados", description = "Devuelve una lista con todos los empleados registrados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleados listados correctamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping
     public ResponseEntity<?> findAll() {
-        try {
-            List<EmpleadoGetDTO> dto = empleadoService.findAll();
-            return new ResponseEntity<>(new ApiResponse<>("Empleados", dto, true), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<EmpleadoGetDTO> dto = empleadoService.findAll();
+        return new ResponseEntity<>(new CustomApiResponse<>("Empleados", dto, true), HttpStatus.OK);
     }
 
+    @Operation(summary = "Obtener empleado por ID", description = "Devuelve un empleado específico basado en su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado encontrado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("{id}")
-    public ResponseEntity<?> findById(@PathVariable Integer id) {
-        try {
-            EmpleadoGetDTO empleado = empleadoService.findById(id).orElse(null);
-            if (empleado != null) {
-                return new ResponseEntity<>(new ApiResponse<>("Empleado", empleado, true), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ApiResponse<>("Empleado no encontrado", null, false), HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> findById(
+            @Parameter(description = "ID del empleado a buscar", example = "1", required = true)
+            @PathVariable Integer id) {
+        EmpleadoGetDTO empleado = empleadoService.findById(id).orElse(null);
+        if (empleado != null) {
+            return new ResponseEntity<>(new CustomApiResponse<>("Empleado", empleado, true), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new CustomApiResponse<>("Empleado no encontrado", null, false), HttpStatus.NOT_FOUND);
         }
     }
 
+    @Operation(summary = "Login de empleado", description = "Autentica un empleado con correo y contraseña")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login exitoso"),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody EmpleadoPostDTO postDTO) {
-        try {
-            Optional<Empleado> optionalEmpleado = empleadoService.findByCorreoAndPassword(postDTO.getEmail(), postDTO.getPassword());
-            if (optionalEmpleado.isPresent()) {
-                Empleado empleado = optionalEmpleado.get();
-                return new ResponseEntity<>(new ApiResponse<>("Login correcto", empleado, true), HttpStatus.OK);
-
-            }
-            return new ResponseEntity<>(new ApiResponse<>("Credenciales no encontradas", null, false), HttpStatus.UNAUTHORIZED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> login(
+            @Parameter(description = "Credenciales de acceso", required = true)
+            @RequestBody EmpleadoPostDTO postDTO) {
+        Optional<Empleado> optionalEmpleado = empleadoService.findByCorreoAndPassword(postDTO.getEmail(), postDTO.getPassword());
+        if (optionalEmpleado.isPresent()) {
+            Empleado empleado = optionalEmpleado.get();
+            return new ResponseEntity<>(new CustomApiResponse<>("Login correcto", empleado, true), HttpStatus.OK);
         }
+        return new ResponseEntity<>(new CustomApiResponse<>("Credenciales no encontradas", null, false), HttpStatus.UNAUTHORIZED);
     }
 
+    @Operation(summary = "Crear nuevo empleado", description = "Registra un nuevo empleado en el sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Empleado creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping()
-    public ResponseEntity<?> create(@Valid @RequestBody EmpleadoPostDTO empleadoDTO) {
-        try {
-            empleadoService.create(empleadoDTO);
-            return new ResponseEntity<>(new ApiResponse<>("Empleado creado", empleadoDTO, true), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> create(
+            @Parameter(description = "Datos del empleado a crear", required = true)
+            @Valid @RequestBody EmpleadoPostDTO empleadoDTO) {
+        empleadoService.create(empleadoDTO);
+        return new ResponseEntity<>(new CustomApiResponse<>("Empleado creado", empleadoDTO, true), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Actualizar empleado existente", description = "Actualiza la información de un empleado existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado actualizado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PutMapping("{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody EmpleadoUpdateDTO empleadoDTO, @PathVariable Integer id) {
-        try {
-            EmpleadoGetDTO dto = empleadoService.update(id, empleadoDTO);
-            return new ResponseEntity<>(new ApiResponse<>("Empleado actualizado", dto, true), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
-
-        }
+    public ResponseEntity<?> update(
+            @Parameter(description = "Datos actualizados del empleado", required = true)
+            @Valid @RequestBody EmpleadoUpdateDTO empleadoDTO,
+            @Parameter(description = "ID del empleado a actualizar", example = "1", required = true)
+            @PathVariable Integer id) {
+        EmpleadoGetDTO dto = empleadoService.update(id, empleadoDTO);
+        return new ResponseEntity<>(new CustomApiResponse<>("Empleado actualizado", dto, true), HttpStatus.OK);
     }
 
+    @Operation(summary = "Desactivar empleado", description = "Marca un empleado como inactivo en el sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado desactivado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        try {
-            EmpleadoGetDTO empleado = empleadoService.findById(id).orElse(null);
-            if (empleado != null) {
-                EmpleadoGetDTO dto =   empleadoService.delete(id);
-                return new ResponseEntity<>(new ApiResponse<>("Empleado inactivo", dto, true), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ApiResponse<>("No se encontro empleado", null, false), HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse<>("Error: " + e.getMessage(), null, false), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> delete(
+            @Parameter(description = "ID del empleado a desactivar", example = "1", required = true)
+            @PathVariable Integer id) {
+        EmpleadoGetDTO empleado = empleadoService.findById(id).orElse(null);
+        if (empleado != null) {
+            EmpleadoGetDTO dto = empleadoService.delete(id);
+            return new ResponseEntity<>(new CustomApiResponse<>("Empleado inactivo", dto, true), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new CustomApiResponse<>("No se encontro empleado", null, false), HttpStatus.NOT_FOUND);
         }
     }
-
 }

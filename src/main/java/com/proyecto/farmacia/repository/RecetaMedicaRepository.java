@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface RecetaMedicaRepository extends JpaRepository<RecetaMedica, Integer> {
 
     @Query("SELECT r FROM RecetaMedica r WHERE r.activo=TRUE")
-    public List<RecetaMedica>findByActivo();
+     List<RecetaMedica>findByActivo();
     
     
 }
