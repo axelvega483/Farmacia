@@ -72,8 +72,7 @@
 
 | Módulo              | Icono | Descripción | Endpoints        |
 |---------------------|-------|------------|------------------|
-|**Usuarios**        | 👨‍💼 |  Login JWT | `/auth/login`    |
-| **Usuarios**        | 👨‍💼 | Gestión de personal y roles  | `/usuario/*`     |
+| **Usuarios**        |  🔐 | Autenticación y control de acceso con roles | `POST /usuario/login` |
 | **Clientes**        | 👥 | Registro y seguimiento | `/cliente/*`     |
 | **Medicamentos**    | 💊 | Control de inventario y stock | `/medicamento/*` |
 | **Proveedores**     | 🏢 | Administración de proveedores | `/proveedor/*`   |
