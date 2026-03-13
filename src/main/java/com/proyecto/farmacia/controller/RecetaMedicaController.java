@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -36,83 +37,79 @@ public class RecetaMedicaController {
     @Autowired
     private RecetaMedicaInterfaz recetaService;
 
-    @Operation(summary = "Listar todas las recetas médicas", description = "Devuelve una lista con todas las recetas médicas registradas")
+    @Operation(summary = "Listar todas las recetas médicas",
+            description = "Devuelve una lista con todas las recetas médicas registradas")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Recetas médicas listadas correctamente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
     public ResponseEntity<?> findAll() {
-        List<RecetaMedicaGetDTO> dto = recetaService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Receta Medica", dto, true), HttpStatus.OK);
+        List<RecetaMedicaGetDTO> recetas = recetaService.findAll();
+        return new ResponseEntity<>(new CustomApiResponse<>("Recetas médicas", recetas, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Obtener receta médica por ID", description = "Devuelve una receta médica específica basada en su ID")
+    @Operation(summary = "Obtener receta médica por ID",
+            description = "Devuelve una receta médica específica basada en su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Receta médica encontrada exitosamente"),
+            @ApiResponse(responseCode = "200", description = "Receta médica encontrada"),
             @ApiResponse(responseCode = "404", description = "Receta médica no encontrada"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("{id}")
     public ResponseEntity<?> findById(
-            @Parameter(description = "ID de la receta médica a buscar", example = "1", required = true)
+            @Parameter(description = "ID de la receta médica", example = "1", required = true)
             @PathVariable Integer id) {
-        RecetaMedicaGetDTO receta = recetaService.findById(id).orElse(null);
-        if (receta != null) {
-            return new ResponseEntity<>(new CustomApiResponse<>("Receta Medica", receta, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("Receta Medica no encontrada", null, false), HttpStatus.NOT_FOUND);
-        }
+        RecetaMedicaGetDTO receta = recetaService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Receta médica no encontrada"));
+        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica", receta, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear nueva receta médica", description = "Registra una nueva receta médica en el sistema")
+    @Operation(summary = "Crear nueva receta médica",
+            description = "Registra una nueva receta médica en el sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Receta médica creada exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Receta médica creada"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno")
     })
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<?> create(
-            @Parameter(description = "Datos de la receta médica a crear", required = true)
+            @Parameter(description = "Datos de la receta médica", required = true)
             @Valid @RequestBody RecetaMedicaPostDTO recetaDto) {
         RecetaMedicaGetDTO dto = recetaService.create(recetaDto);
-        return new ResponseEntity<>(new CustomApiResponse<>("Receta medica cargada", dto, true), HttpStatus.CREATED);
+        return new  ResponseEntity<>(new CustomApiResponse<>("Receta médica creada", dto, true),HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Actualizar receta médica existente", description = "Actualiza la información de una receta médica existente")
+    @Operation(summary = "Actualizar receta médica",
+            description = "Actualiza la información de una receta médica existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Receta médica actualizada exitosamente"),
+            @ApiResponse(responseCode = "200", description = "Receta médica actualizada"),
             @ApiResponse(responseCode = "404", description = "Receta médica no encontrada"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno")
     })
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @Parameter(description = "Datos actualizados de la receta médica", required = true)
-            @Valid @RequestBody RecetaMedicaUptadeDTO recetaMedicaDto,
-            @Parameter(description = "ID de la receta médica a actualizar", example = "1", required = true)
+            @Valid @RequestBody RecetaMedicaUptadeDTO recetaDto,
+            @Parameter(description = "ID de la receta médica", example = "1", required = true)
             @PathVariable Integer id) {
-        RecetaMedicaGetDTO dto = recetaService.update(id, recetaMedicaDto);
-        return new ResponseEntity<>(new CustomApiResponse<>("Actualizada", dto, true), HttpStatus.OK);
+        RecetaMedicaGetDTO dto = recetaService.update(id, recetaDto);
+        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica actualizada", dto, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar receta médica", description = "Elimina una receta médica del sistema")
+    @Operation(summary = "Eliminar receta médica",
+            description = "Desactiva una receta médica del sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Receta médica eliminada exitosamente"),
+            @ApiResponse(responseCode = "200", description = "Receta médica eliminada"),
             @ApiResponse(responseCode = "404", description = "Receta médica no encontrada"),
-            @ApiResponse(responseCode = "409", description = "Conflicto al eliminar la receta médica"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "500", description = "Error interno")
     })
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(
-            @Parameter(description = "ID de la receta médica a eliminar", example = "1", required = true)
+            @Parameter(description = "ID de la receta médica", example = "1", required = true)
             @PathVariable Integer id) {
-        RecetaMedicaGetDTO recetaMedica = recetaService.findById(id).orElse(null);
-        if (recetaMedica != null) {
-            recetaService.delete(recetaMedica.getId());
-            return new ResponseEntity<>(new CustomApiResponse<>("receta medica eliminada", null, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("no se pudo dar de baja", null, false), HttpStatus.NOT_FOUND);
-        }
+        recetaService.delete(id);
+        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica eliminada", null, true),HttpStatus.OK);
     }
 }

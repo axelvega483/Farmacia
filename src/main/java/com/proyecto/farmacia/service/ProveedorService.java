@@ -8,11 +8,11 @@ import com.proyecto.farmacia.entity.Proveedor;
 import com.proyecto.farmacia.interfaz.ProveedorInterfaz;
 import com.proyecto.farmacia.repository.ProveedorRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,64 +26,53 @@ public class ProveedorService implements ProveedorInterfaz {
 
     @Override
     public ProveedorGetDTO create(ProveedorPostDTO post) {
-        if (findByName(post.getNombre()).isPresent()) {
+        if (findByName(post.nombre()).isPresent()) {
             throw new EntityExistsException("Proveedor existente");
         }
-        Proveedor proveedor = mapper.create(post);
+        Proveedor proveedor = mapper.toEntity(post);
         Proveedor saved = repo.save(proveedor);
         return mapper.toDTO(saved);
     }
 
     @Override
     public ProveedorGetDTO update(Integer id, ProveedorUpdateDTO put) {
-        Proveedor proveedor = repo.findById(id).orElse(null);
-        if (proveedor == null) {
-            throw new EntityExistsException("Proveedor no encontrado");
-        }
-        proveedor = mapper.update(proveedor, put);
+        Proveedor proveedor = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
+
+        proveedor = mapper.updateEntityFromDTO(proveedor, put);
+
         Proveedor saved = repo.save(proveedor);
+
         return mapper.toDTO(saved);
     }
 
     @Override
     public void delete(Integer id) {
-        Optional<Proveedor> proveedorOptional = repo.findById(id);
-        if (proveedorOptional.isPresent()) {
-            Proveedor proveedor = proveedorOptional.get();
-            proveedor.setActivo(Boolean.FALSE);
-            repo.save(proveedor);
-        }
+
+        Proveedor proveedor = repo.findById(id)
+                .filter(Proveedor::isActivo)
+                .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
+
+        proveedor.setActivo(false);
+        repo.save(proveedor);
     }
 
     @Override
     public Optional<ProveedorGetDTO> findById(Integer id) {
-        Optional<Proveedor> proveedor = repo.findById(id).filter(Proveedor::getActivo);
-        if (proveedor.isPresent()) {
-            ProveedorGetDTO dto = mapper.toDTO(proveedor.get());
-            return Optional.of(dto);
-        }
-        return Optional.empty();
+        return repo.findById(id)
+                .filter(Proveedor::isActivo)
+                .map(mapper::toDTO);
     }
 
     @Override
     public List<ProveedorGetDTO> findAll() {
-        List<Proveedor> proveedores = repo.findAll();
-        List<ProveedorGetDTO> dtos = new ArrayList<>();
-        for (Proveedor proveedor : proveedores) {
-            ProveedorGetDTO dto = mapper.toDTO(proveedor);
-            dtos.add(dto);
-        }
-        return dtos;
+       return mapper.toDTOList(repo.findAll());
     }
 
     @Override
     public Optional<ProveedorGetDTO> findByName(String nombre) {
-        Optional<Proveedor> proveedor = repo.findByName(nombre).filter(Proveedor::getActivo);
-        if (proveedor.isPresent()) {
-            ProveedorGetDTO dto = mapper.toDTO(proveedor.get());
-            return Optional.of(dto);
-        }
-        return Optional.empty();
+        return repo.findByNombreIgnoreCase(nombre)
+                .map(mapper::toDTO);
     }
 
 }

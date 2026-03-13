@@ -13,39 +13,45 @@ import java.util.stream.Collectors;
 public class RecetaMedicaMapper {
 
     public RecetaMedicaGetDTO toDTO(RecetaMedica recetaMedica) {
-        RecetaMedicaGetDTO dto = new RecetaMedicaGetDTO();
-
-        dto.setId(recetaMedica.getId());
-        dto.setClienteNombre(recetaMedica.getCliente().getNombre());
-        dto.setFecha(recetaMedica.getFecha());
-        dto.setMedico(recetaMedica.getMedico());
-        dto.setVigenteHasta(recetaMedica.getVigenteHasta());
-        dto.setActivo(recetaMedica.getActivo());
-
-        List<String> medicamentos = recetaMedica.getMedicamentos().stream().map(Medicamento::getNombre).collect(Collectors.toList());
-        dto.setMedicamentosNombres(medicamentos);
-        return dto;
+        List<String> medicamentos = recetaMedica.getMedicamentos()
+                .stream()
+                .filter(medicamento -> medicamento.isActivo())
+                .map(Medicamento::getNombre)
+                .collect(Collectors.toList());
+        return new RecetaMedicaGetDTO(
+                recetaMedica.getId(),
+                recetaMedica.getMedico(),
+                recetaMedica.getFecha(),
+                recetaMedica.getVigenteHasta(),
+                recetaMedica.isActivo(),
+                recetaMedica.getCliente().getNombre(),
+                medicamentos
+        );
     }
 
-    public RecetaMedica create(RecetaMedicaPostDTO post, List<Medicamento> medicamentos, Cliente cliente) {
-        RecetaMedica receta = new RecetaMedica();
-        receta.setCliente(cliente);
-        receta.setFecha(LocalDate.now());
-        receta.setMedicamentos(medicamentos);
-        receta.setMedico(post.getMedico());
-        receta.setVigenteHasta(post.getVigenteHasta());
-        receta.setActivo(Boolean.TRUE);
-        return receta;
+    public RecetaMedica toEntity(RecetaMedicaPostDTO post, List<Medicamento> medicamentos, Cliente cliente) {
+        return RecetaMedica.builder()
+                .cliente(cliente)
+                .fecha(LocalDate.now())
+                .medicamentos(medicamentos)
+                .medico(post.medico())
+                .vigenteHasta(post.vigenteHasta())
+                .activo(Boolean.TRUE)
+                .build();
+
     }
 
-    public RecetaMedica update(RecetaMedica receta, RecetaMedicaUptadeDTO put, Cliente cliente, List<Medicamento> medicamentos) {
+    public RecetaMedica updateEntityFromDTO(RecetaMedica receta, RecetaMedicaUptadeDTO put, Cliente cliente, List<Medicamento> medicamentos) {
         if (cliente != null) receta.setCliente(cliente);
-        if (put.getFecha() != null) receta.setFecha(put.getFecha());
-        if (put.getMedico() != null) receta.setMedico(put.getMedico());
-        if (put.getVigenteHasta() != null) receta.setVigenteHasta(put.getVigenteHasta());
+        if (put.fecha() != null) receta.setFecha(put.fecha());
+        if (put.medico() != null) receta.setMedico(put.medico());
+        if (put.vigenteHasta() != null) receta.setVigenteHasta(put.vigenteHasta());
         if (medicamentos != null) receta.setMedicamentos(medicamentos);
-        if (put.getActivo() != null) receta.setActivo(put.getActivo());
+        if (put.activo() != null) receta.setActivo(put.activo());
         return receta;
     }
 
+    public List<RecetaMedicaGetDTO> toDTOList(List<RecetaMedica> recetas) {
+        return recetas.stream().filter(RecetaMedica::isActivo).map(this::toDTO).toList();
+    }
 }

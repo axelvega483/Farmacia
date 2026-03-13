@@ -18,11 +18,10 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import lombok.*;
+
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
@@ -47,8 +46,7 @@ public class RecetaMedica implements Serializable {
     @Column(nullable = false)
     private String medico;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo;
 
     @ManyToMany
     @JoinTable(

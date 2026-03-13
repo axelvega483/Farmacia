@@ -47,10 +47,7 @@ public class VentaController {
     private PdfGeneratorService pdfGenerator;
 
     @Operation(summary = "Listar todas las ventas", description = "Devuelve una lista con todas las ventas registradas")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ventas listadas correctamente"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Ventas listadas correctamente"), @ApiResponse(responseCode = "500", description = "Error interno del servidor")})
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<VentaGetDTO> dto = ventasService.findAll();
@@ -61,12 +58,9 @@ public class VentaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Venta encontrada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Venta no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")})
     @GetMapping("{id}")
-    public ResponseEntity<?> findById(
-            @Parameter(description = "ID de la venta a buscar", example = "1", required = true)
-            @PathVariable Integer id) {
+    public ResponseEntity<?> findById(@Parameter(description = "ID de la venta a buscar", example = "1", required = true) @PathVariable Integer id) {
         VentaGetDTO venta = ventasService.findById(id).orElse(null);
         if (venta != null) {
             return new ResponseEntity<>(new CustomApiResponse<>("Venta", venta, true), HttpStatus.OK);
@@ -79,31 +73,28 @@ public class VentaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Venta creada exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")})
     @PostMapping
-    public ResponseEntity<?> create(
-            @Parameter(description = "Datos de la venta a crear", required = true)
-            @Valid @RequestBody VentaPostDTO ventaDTO) {
+    public ResponseEntity<?> create(@Parameter(description = "Datos de la venta a crear", required = true) @Valid @RequestBody VentaPostDTO ventaDTO) {
         VentaGetDTO dto = ventasService.create(ventaDTO);
-        return ResponseEntity.ok(new CustomApiResponse<>("Venta creada", dto, true));
+        return new ResponseEntity<>(new CustomApiResponse<>("Venta creada", dto, true),HttpStatus.OK);
     }
 
     @Operation(summary = "Anular venta", description = "Anula una venta existente en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Venta anulada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Venta no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")})
     @PutMapping("/anular/{id}")
-    public ResponseEntity<?> cancel(
-            @Parameter(description = "ID de la venta a anular", example = "1", required = true)
-            @PathVariable Integer id) {
+    public ResponseEntity<?> cancel(@Parameter(description = "ID de la venta a anular", example = "1", required = true) @PathVariable Integer id) {
         VentaGetDTO venta = ventasService.cancel(id);
         return new ResponseEntity<>(new CustomApiResponse<>("Venta anulada", venta, true), HttpStatus.OK);
     }
 
-    @Operation(summary = "Descargar factura PDF", description = "Genera y descarga la factura en formato PDF de una venta")
+    @Operation(
+            summary = "Descargar factura PDF",
+            description = "Genera y descarga la factura en formato PDF de una venta"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Factura generada y descargada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Venta no encontrada o factura no generada"),
@@ -111,20 +102,29 @@ public class VentaController {
     })
     @GetMapping("/factura/{id}")
     public ResponseEntity<?> descargarFactura(
-            @Parameter(description = "ID de la venta para generar factura", example = "1", required = true)
-            @PathVariable Integer id) {
+
+            @Parameter(
+                    description = "ID de la venta para generar factura",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Integer id
+    ) {
+
         VentaGetDTO venta = ventasService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
 
         String rutaPDF = pdfGenerator.generarFacturaPDF(venta);
 
         File pdfFile = new File(rutaPDF);
+
         if (!pdfFile.exists()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new CustomApiResponse<>("Factura no generada correctamente", null, false));
         }
 
         InputStreamResource resource;
+
         try {
             resource = new InputStreamResource(new FileInputStream(pdfFile));
         } catch (FileNotFoundException e) {
@@ -133,8 +133,10 @@ public class VentaController {
         }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=factura-" + venta.getId() + ".pdf")
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=factura-" + venta.id() + ".pdf"
+                )
                 .contentType(MediaType.APPLICATION_PDF)
                 .contentLength(pdfFile.length())
                 .body(resource);

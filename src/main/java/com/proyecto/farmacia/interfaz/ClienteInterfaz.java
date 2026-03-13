@@ -3,7 +3,6 @@ package com.proyecto.farmacia.interfaz;
 import com.proyecto.farmacia.DTOs.Clientes.ClientePostDTO;
 import com.proyecto.farmacia.DTOs.Clientes.ClienteUpdateDTO;
 import com.proyecto.farmacia.DTOs.Clientes.ClientesGetDTO;
-import com.proyecto.farmacia.entity.Cliente;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,5 @@
 package com.proyecto.farmacia.DTOs.Medicamentos;
 
-import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
 import com.proyecto.farmacia.DTOs.Proveedor.ProveedorMapper;
 import com.proyecto.farmacia.entity.Medicamento;
 import com.proyecto.farmacia.entity.Proveedor;
@@ -16,52 +15,55 @@ public class MedicamentoMapper {
     private ProveedorMapper proveedorMapper;
 
     public MedicamentosGetDTO toDTO(Medicamento medicamento) {
-        MedicamentosGetDTO dto = new MedicamentosGetDTO();
-        dto.setActivo(medicamento.getActivo());
-        dto.setDescripcion(medicamento.getDescripcion());
-        dto.setFechaVencimiento(medicamento.getFechaVencimiento());
-        dto.setId(medicamento.getId());
-        dto.setNombre(medicamento.getNombre());
-        dto.setPrecio(medicamento.getPrecio());
-        if (medicamento.getProveedor() != null) {
-            dto.setProveedor(proveedorMapper.toDTO(medicamento.getProveedor()));
-        }
-        dto.setRecetaRequerida(medicamento.getRecetaRequerida());
-        dto.setStock(medicamento.getStock());
-
         List<MedicamentoDetalleDTO> detalle = medicamento.getDetalleVentas()
-                .stream()
+                .stream().filter(detalleVenta -> detalleVenta.getVenta().isActivo())
                 .map(detalles -> new MedicamentoDetalleDTO(
                         detalles.getId(),
                         detalles.getCantidad(),
                         detalles.getPrecioUnitario())).toList();
-        dto.setDetalleVentasID(detalle);
-        return dto;
+
+        return new MedicamentosGetDTO(
+                medicamento.getId(),
+                medicamento.getNombre(),
+                medicamento.getDescripcion(),
+                medicamento.getPrecio(),
+                medicamento.getStock(),
+                medicamento.getFechaVencimiento(),
+                medicamento.getRecetaRequerida(),
+                medicamento.isActivo(),
+                proveedorMapper.toBasicDTO(medicamento.getProveedor()),
+                detalle
+        );
+
     }
 
-    public Medicamento create(MedicamentoPostDTO post) {
-        Medicamento medicamento = new Medicamento();
-        medicamento.setActivo(Boolean.TRUE);
-        medicamento.setDescripcion(post.getDescripcion());
-        medicamento.setFechaVencimiento(post.getFechaVencimiento());
-        medicamento.setNombre(post.getNombre());
-        medicamento.setPrecio(post.getPrecio());
-        medicamento.setProveedor(post.getProveedor());
-        medicamento.setRecetaRequerida(post.getRecetaRequerida());
-        medicamento.setStock(post.getStock());
-        medicamento.setDetalleVentas(Collections.emptyList());
+    public Medicamento toEntity(MedicamentoPostDTO post,Proveedor proveedor) {
+        return Medicamento.builder()
+                .nombre(post.nombre())
+                .descripcion(post.descripcion())
+                .precio(post.precio())
+                .stock(post.stock())
+                .fechaVencimiento(post.fechaVencimiento())
+                .recetaRequerida(post.recetaRequerida())
+                .activo(true)
+                .proveedor(proveedor)
+                .detalleVentas(Collections.emptyList())
+                .build();
+    }
+
+    public Medicamento updateEntityFromDTO(Medicamento medicamento, MedicamentoUpdateDTO put, Proveedor proveedor) {
+        if (put.activo() != null) medicamento.setActivo(put.activo());
+        if (put.descripcion() != null) medicamento.setDescripcion(put.descripcion());
+        if (put.fechaVencimiento() != null) medicamento.setFechaVencimiento(put.fechaVencimiento());
+        if (put.nombre() != null) medicamento.setNombre(put.nombre());
+        if (put.precio() != null) medicamento.setPrecio(put.precio());
+        if (put.proveedor() != null) medicamento.setProveedor(proveedor);
+        if (put.recetaRequerida() != null) medicamento.setRecetaRequerida(put.recetaRequerida());
+        if (put.stock() != null) medicamento.setStock(put.stock());
         return medicamento;
     }
 
-    public Medicamento update(Medicamento medicamento, MedicamentoUpdateDTO put,Proveedor proveedor) {
-        if (put.getActivo() != null) medicamento.setActivo(put.getActivo());
-        if (put.getDescripcion() != null) medicamento.setDescripcion(put.getDescripcion());
-        if (put.getFechaVencimiento() != null) medicamento.setFechaVencimiento(put.getFechaVencimiento());
-        if (put.getNombre() != null) medicamento.setNombre(put.getNombre());
-        if (put.getPrecio() != null) medicamento.setPrecio(put.getPrecio());
-        if (put.getProveedor() != null) medicamento.setProveedor(proveedor);
-        if (put.getRecetaRequerida() != null) medicamento.setRecetaRequerida(put.getRecetaRequerida());
-        if (put.getStock() != null) medicamento.setStock(put.getStock());
-        return medicamento;
+    public List<MedicamentosGetDTO> toDTOList(List<Medicamento> medicamentos) {
+        return medicamentos.stream().filter(Medicamento::isActivo).map(this::toDTO).toList();
     }
 }

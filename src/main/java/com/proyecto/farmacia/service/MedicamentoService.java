@@ -31,70 +31,62 @@ public class MedicamentoService implements MedicamentoInterfaz {
 
     @Override
     public MedicamentosGetDTO create(MedicamentoPostDTO post) {
-        if (medicamentoExiste(post.getNombre(), post.getProveedor().getId())) {
+        if (medicamentoExiste(post.nombre(), post.proveedorId())) {
             throw new EntityExistsException("El medicamento ya existe");
         }
-        Medicamento medicamento = mapper.create(post);
+        Proveedor proveedor = proveedorRepository
+                .findById(post.proveedorId())
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+        Medicamento medicamento = mapper.toEntity(post,proveedor);
         Medicamento saved = repo.save(medicamento);
         return mapper.toDTO(saved);
     }
 
     @Override
     public void delete(Integer id) {
-        Optional<Medicamento> medicamento = repo.findById(id);
-        if (medicamento.isPresent()) {
-            Medicamento m = medicamento.get();
-            m.setActivo(Boolean.FALSE);
-            repo.save(m);
-        }
+        Medicamento medicamento = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Medicamento no encontrado"));
+
+        medicamento.setActivo(false);
+        repo.save(medicamento);
     }
 
     @Override
     public Optional<MedicamentosGetDTO> findById(Integer id) {
-        Optional<Medicamento> medicamento = repo.findById(id).filter(Medicamento::getActivo);
-        if (medicamento.isPresent()) {
-            MedicamentosGetDTO dto = mapper.toDTO(medicamento.get());
-            return Optional.of(dto);
-        }
-        return Optional.empty();
+        Medicamento medicamento = repo.findById(id)
+                .filter(Medicamento::isActivo)
+                .orElseThrow(() -> new EntityNotFoundException("Medicamento no encontrado"));
+
+        return Optional.of(mapper.toDTO(medicamento));
     }
 
     @Override
     public List<MedicamentosGetDTO> findAll() {
-        List<Medicamento> medicamentos = repo.findAll();
-        List<MedicamentosGetDTO> dtos = new ArrayList<>();
-        for (Medicamento medicamento : medicamentos) {
-            MedicamentosGetDTO dto = mapper.toDTO(medicamento);
-            dtos.add(dto);
-        }
-        return dtos;
+        return mapper.toDTOList(repo.findAll());
     }
 
     public boolean medicamentoExiste(String nombre, Integer proveedorId) {
-        return repo.findByNombreAndProveedor(nombre, proveedorId).isPresent();
+        return repo.existsByNombreAndProveedorIdAndActivoTrue(nombre, proveedorId);
     }
 
     public List<MedicamentosGetDTO> findByName(String nombre) {
-        List<Medicamento> medicamentos = repo.findByNombre(nombre);
-        List<MedicamentosGetDTO> dtos = new ArrayList<>();
-        for (Medicamento medicamento : medicamentos) {
-            MedicamentosGetDTO dto = mapper.toDTO(medicamento);
-            dtos.add(dto);
-        }
-        return dtos;
+        return repo
+                .findByNombreContainingIgnoreCaseAndActivoTrue(nombre)
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     @Override
     public MedicamentosGetDTO update(Integer id, MedicamentoUpdateDTO put) {
         Medicamento medicamento = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Medicamento no encontrado"));
-
         Proveedor proveedor = null;
-        if (put.getProveedor() != null && put.getProveedor().getId() != null) {
-            proveedor = proveedorRepository.findById(put.getProveedor().getId())
+        if (put.proveedor() != null && put.proveedor().getId() != null) {
+            proveedor = proveedorRepository.findById(put.proveedor().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
         }
-        medicamento = mapper.update(medicamento, put, proveedor);
+        medicamento = mapper.updateEntityFromDTO(medicamento, put, proveedor);
         Medicamento saved = repo.save(medicamento);
         return mapper.toDTO(saved);
     }

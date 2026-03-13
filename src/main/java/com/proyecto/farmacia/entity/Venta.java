@@ -21,11 +21,10 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import lombok.*;
+
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
@@ -65,10 +64,9 @@ public class Venta implements Serializable {
     @JoinColumn(name = "empleado_id", nullable = false)
     @JsonIgnoreProperties("ventas")
     @NotNull(message = "La venta debe estar registrada por un empleado")
-    private Empleado empleado;
+    private Usuario empleado;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -46,7 +46,7 @@
 
 | Módulo | Icono | Descripción | Endpoints |
 |--------|-------|-------------|-----------|
-| **Empleados** | 👨‍💼 | Gestión de personal y roles | `GET/POST/PUT/DELETE /empleado` |
+| **Empleados** | 👨‍💼 | Gestión de personal y roles | `GET/POST/PUT/DELETE /usuario` |
 | **Clientes** | 👥 | Registro y seguimiento | `GET/POST/PUT /cliente` |
 | **Medicamentos** | 💊 | Control de inventario y stock | `GET/POST/PUT/DELETE /medicamento` |
 | **Proveedores** | 🏢 | Administración de proveedores | `GET/POST/PUT/DELETE /proveedor` |
@@ -133,7 +133,7 @@
 | **Venta de Medicamentos** | Registro de venta → Control de stock → Generación de factura | `POST /venta` → `GET /venta/factura/{id}` |
 | **Gestión de Inventario** | Búsqueda de medicamentos → Actualización de stock | `GET /medicamento` → `PUT /medicamento/{id}` |
 | **Atención con Receta** | Validación de receta → Venta asociada → Control de existencias | `GET /receta/{id}` → `POST /venta` |
-| **Administración** | Login empleado → Gestión de proveedores → Control de ventas | `POST /empleado/login` → `CRUD /proveedor` |
+| **Administración** | Login usuario → Gestión de proveedores → Control de ventas | `POST /usuario/login` → `CRUD /proveedor` |
 
 </div>
 

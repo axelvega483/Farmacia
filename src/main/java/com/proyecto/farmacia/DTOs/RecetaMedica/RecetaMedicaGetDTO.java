@@ -2,18 +2,15 @@ package com.proyecto.farmacia.DTOs.RecetaMedica;
 
 import java.time.LocalDate;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class RecetaMedicaGetDTO {
+public record RecetaMedicaGetDTO(
+        Integer id,
+        String medico,
+        LocalDate fecha,
+        LocalDate vigenteHasta,
+        Boolean activo,
+        String clienteNombre,
+        List<String> medicamentosNombres) {
 
-    private Integer id;
-    private String medico;
-    private LocalDate fecha;
-    private LocalDate vigenteHasta;
-    private Boolean activo;
-    private String clienteNombre;
-    private List<String> medicamentosNombres;
+
 }

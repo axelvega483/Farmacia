@@ -13,6 +13,5 @@ public interface VentaInterfaz {
 
     Optional<VentaGetDTO> findById(Integer id);
 
-
     List<VentaGetDTO> findAll();
 }

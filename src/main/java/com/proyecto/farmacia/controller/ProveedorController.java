@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -36,18 +37,20 @@ public class ProveedorController {
     @Autowired
     private ProveedorInterfaz proveedorService;
 
-    @Operation(summary = "Listar todos los proveedores", description = "Devuelve una lista con todos los proveedores registrados")
+    @Operation(summary = "Listar todos los proveedores",
+            description = "Devuelve una lista con todos los proveedores registrados")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proveedores listados correctamente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
     public ResponseEntity<?> findAll() {
-        List<ProveedorGetDTO> dto = proveedorService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor", dto, true), HttpStatus.OK);
+        List<ProveedorGetDTO> proveedores = proveedorService.findAll();
+        return new ResponseEntity<>(new CustomApiResponse<>("Proveedores obtenidos correctamente", proveedores, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Obtener proveedor por ID", description = "Devuelve un proveedor específico basado en su ID")
+    @Operation(summary = "Obtener proveedor por ID",
+            description = "Devuelve un proveedor específico basado en su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proveedor encontrado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Proveedor no encontrado"),
@@ -57,18 +60,16 @@ public class ProveedorController {
     public ResponseEntity<?> findById(
             @Parameter(description = "ID del proveedor a buscar", example = "1", required = true)
             @PathVariable Integer id) {
-        ProveedorGetDTO proveedor = proveedorService.findById(id).orElse(null);
-        if (proveedor != null) {
-            return new ResponseEntity<>(new CustomApiResponse<>("Proveedor", proveedor, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("No existe proveedor", null, false), HttpStatus.NOT_FOUND);
-        }
+        ProveedorGetDTO proveedor = proveedorService.findById(id).orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
+        return new ResponseEntity<>( new CustomApiResponse<>("Proveedor encontrado", proveedor, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear nuevo proveedor", description = "Registra un nuevo proveedor en el sistema")
+    @Operation(summary = "Crear nuevo proveedor",
+            description = "Registra un nuevo proveedor en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Proveedor creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "409", description = "Proveedor ya existente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping
@@ -76,10 +77,11 @@ public class ProveedorController {
             @Parameter(description = "Datos del proveedor a crear", required = true)
             @Valid @RequestBody ProveedorPostDTO proveedorDTO) {
         ProveedorGetDTO dto = proveedorService.create(proveedorDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor cargado", dto, true), HttpStatus.CREATED);
+        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor creado correctamente", dto, true),HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Actualizar proveedor existente", description = "Actualiza la información de un proveedor existente")
+    @Operation(summary = "Actualizar proveedor existente",
+            description = "Actualiza la información de un proveedor existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proveedor actualizado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Proveedor no encontrado"),
@@ -90,29 +92,25 @@ public class ProveedorController {
     public ResponseEntity<?> update(
             @Parameter(description = "Datos actualizados del proveedor", required = true)
             @Valid @RequestBody ProveedorUpdateDTO proveedorDTO,
+
             @Parameter(description = "ID del proveedor a actualizar", example = "1", required = true)
             @PathVariable Integer id) {
         ProveedorGetDTO dto = proveedorService.update(id, proveedorDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor actualizado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor actualizado correctamente", dto, true),HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar proveedor", description = "Elimina un proveedor del sistema")
+    @Operation(summary = "Eliminar proveedor",
+            description = "Desactiva un proveedor del sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proveedor eliminado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Proveedor no encontrado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto al eliminar el proveedor"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(
             @Parameter(description = "ID del proveedor a eliminar", example = "1", required = true)
             @PathVariable Integer id) {
-        ProveedorGetDTO proveedor = proveedorService.findById(id).orElse(null);
-        if (proveedor != null) {
-            proveedorService.delete(proveedor.getId());
-            return new ResponseEntity<>(new CustomApiResponse<>("Proveedor eliminado", null, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("No se pudo eliminar", null, false), HttpStatus.NOT_FOUND);
-        }
+        proveedorService.delete(id);
+        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor eliminado correctamente", null, true),HttpStatus.OK);
     }
 }

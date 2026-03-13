@@ -16,11 +16,10 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import lombok.*;
+
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
@@ -51,8 +50,7 @@ public class Cliente implements Serializable {
     @Column(name = "dni", unique = true, nullable = false)
     private String dni;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     @JsonIgnore

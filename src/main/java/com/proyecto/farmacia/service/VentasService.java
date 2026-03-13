@@ -4,7 +4,7 @@ import com.proyecto.farmacia.DTOs.Ventas.*;
 import com.proyecto.farmacia.entity.*;
 import com.proyecto.farmacia.interfaz.VentaInterfaz;
 import com.proyecto.farmacia.repository.ClienteRepository;
-import com.proyecto.farmacia.repository.EmpleadoRepository;
+import com.proyecto.farmacia.repository.UsuarioRepository;
 import com.proyecto.farmacia.repository.MedicamentoRepository;
 import com.proyecto.farmacia.repository.VentaRepository;
 
@@ -14,11 +14,13 @@ import java.util.Optional;
 
 import com.proyecto.farmacia.util.EstadoVenta;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class VentasService implements VentaInterfaz {
 
     @Autowired
@@ -30,41 +32,37 @@ public class VentasService implements VentaInterfaz {
     @Autowired
     private MedicamentoRepository medicamentoRepo;
     @Autowired
-    private EmpleadoRepository empleadoRepo;
+    private UsuarioRepository empleadoRepo;
 
     @Override
-    @Transactional
     public VentaGetDTO create(VentaPostDTO post) {
-        Cliente cliente = clienteRepo.findById(post.getClienteId()).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-
-        Empleado empleado = empleadoRepo.findById(post.getEmpleadoId()).orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
-
+        Cliente cliente = clienteRepo.findById(post.clienteId())
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+        Usuario empleado = empleadoRepo.findById(post.empleadoId())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
         List<DetalleVenta> detallesFinales = new ArrayList<>();
-
-        for (VentaDetalleDTO detalleDTO : post.getDetalles()) {
-            Medicamento medicamento = medicamentoRepo.findById(detalleDTO.getMedicamentoId()).orElseThrow(() -> new RuntimeException("Medicamento no encontrado con ID: " + detalleDTO.getMedicamentoId()));
-
-            if (!medicamento.getActivo()) {
-                throw new EntityExistsException("Medicamento inactivo");
+        for (VentaDetalleDTO detalleDTO : post.detalles()) {
+            Medicamento medicamento = medicamentoRepo.findById(detalleDTO.medicamentoId())
+                    .orElseThrow(() ->
+                            new EntityNotFoundException(
+                                    "Medicamento no encontrado con ID: " + detalleDTO.medicamentoId()
+                            ));
+            if (!medicamento.isActivo()) {
+                throw new IllegalStateException("Medicamento inactivo: " + medicamento.getNombre());
             }
-            if (medicamento.getStock() < detalleDTO.getCantidad()) {
-                throw new EntityExistsException("Stock insuficiente para: " + medicamento.getNombre());
+            if (medicamento.getStock() < detalleDTO.cantidad()) {
+                throw new IllegalStateException("Stock insuficiente para: " + medicamento.getNombre());
             }
-
-            medicamento.setStock(medicamento.getStock() - detalleDTO.getCantidad());
-            medicamentoRepo.save(medicamento);
-
-
+            medicamento.setStock(
+                    medicamento.getStock() - detalleDTO.cantidad()
+            );
             DetalleVenta detalle = mapper.toDetalleVenta(detalleDTO, medicamento);
             detallesFinales.add(detalle);
         }
-
         Venta venta = mapper.toEntity(post, cliente, empleado, detallesFinales);
-
         for (DetalleVenta detalle : detallesFinales) {
             detalle.setVenta(venta);
         }
-
         Venta savedVenta = repo.save(venta);
         return mapper.toDTO(savedVenta);
     }
@@ -72,18 +70,17 @@ public class VentasService implements VentaInterfaz {
 
     @Override
     public VentaGetDTO cancel(Integer id) {
-        Venta venta = repo.findById(id).orElse(null);
-
-        if (venta.getEstado().equals(EstadoVenta.ANULADA)) {
-            throw new EntityExistsException("La venta ya está anulada");
+        Venta venta = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Venta no encontrada"));
+        if (venta.getEstado() == EstadoVenta.ANULADA) {
+            throw new IllegalStateException("La venta ya está anulada");
         }
-
-        for (DetalleVenta d : venta.getDetalleventas()) {
-            Medicamento m = d.getMedicamento();
-            m.setStock(m.getStock() + d.getCantidad());
-            medicamentoRepo.save(m);
+        for (DetalleVenta detalle : venta.getDetalleventas()) {
+            Medicamento medicamento = detalle.getMedicamento();
+            medicamento.setStock(
+                    medicamento.getStock() + detalle.getCantidad()
+            );
         }
-
         venta.setEstado(EstadoVenta.ANULADA);
         venta.setActivo(false);
         Venta saved = repo.save(venta);
@@ -92,23 +89,13 @@ public class VentasService implements VentaInterfaz {
 
     @Override
     public Optional<VentaGetDTO> findById(Integer id) {
-        Optional<Venta> venta = repo.findById(id).filter(Venta::getActivo);
-        if (venta.isPresent()) {
-            VentaGetDTO dto = mapper.toDTO(venta.get());
-            return Optional.of(dto);
-        }
-
-        return Optional.empty();
+        return repo.findById(id)
+                .filter(Venta::isActivo)
+                .map(mapper::toDTO);
     }
 
     @Override
     public List<VentaGetDTO> findAll() {
-        List<Venta> ventas = repo.findAll();
-        List<VentaGetDTO> dtos = new ArrayList<>();
-        for (Venta venta : ventas) {
-            VentaGetDTO dto = mapper.toDTO(venta);
-            dtos.add(dto);
-        }
-        return dtos;
+        return mapper.toDTOList(repo.findAll());
     }
 }

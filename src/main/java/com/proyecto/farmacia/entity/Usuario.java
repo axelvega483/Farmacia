@@ -6,24 +6,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proyecto.farmacia.util.RolEmpleado;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+
+import java.util.Collection;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
 
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "empleado")
-public class Empleado implements Serializable{
+@Table(name = "usuario")
+public class Usuario implements Serializable, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +46,6 @@ public class Empleado implements Serializable{
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     @NotNull(message = "El password no puede estar vacio")
     @Column(name = "password", nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -53,15 +57,47 @@ public class Empleado implements Serializable{
     private String dni;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "El rol no puede estar vacío")
     @Column(name = "rol", nullable = false)
     private RolEmpleado rol;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo;
 
-    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Venta> ventas;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.rol.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.activo;
+    }
 }

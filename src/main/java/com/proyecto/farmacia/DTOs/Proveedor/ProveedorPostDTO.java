@@ -1,17 +1,12 @@
 package com.proyecto.farmacia.DTOs.Proveedor;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+public record ProveedorPostDTO(
+        @NotNull
+        String nombre,
+        @NotNull
+        String telefono,
+        @NotNull
+        String email) {
 
-@Getter
-@Setter
-public class ProveedorPostDTO {
-
-    @NotNull
-    private String nombre;
-    @NotNull
-    private String telefono;
-    @NotNull
-    private String email;
 }

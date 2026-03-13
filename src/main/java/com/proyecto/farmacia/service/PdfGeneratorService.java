@@ -46,7 +46,7 @@ public class PdfGeneratorService {
                 directory.mkdirs();
             }
 
-            pathArchivo = directory + File.separator + "factura-" + venta.getId() + ".pdf";
+            pathArchivo = directory + File.separator + "factura-" + venta.id() + ".pdf";
             document = new Document(PageSize.A4);
             PdfWriter.getInstance(document, new FileOutputStream(pathArchivo));
 
@@ -74,12 +74,12 @@ public class PdfGeneratorService {
         document.add(encabezado);
 
         // Fecha
-        Paragraph fecha = new Paragraph("Fecha: " + venta.getFecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontCuerpo);
+        Paragraph fecha = new Paragraph("Fecha: " + venta.fecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontCuerpo);
         fecha.setAlignment(Paragraph.ALIGN_CENTER);
         document.add(fecha);
 
         // Información cliente
-        Cliente cliente = clienteRepo.findById(venta.getCliente())
+        Cliente cliente = clienteRepo.findById(venta.cliente())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
         Paragraph infoCliente = new Paragraph("Cliente: " + cliente.getNombre(), fontCuerpo);
@@ -97,21 +97,21 @@ public class PdfGeneratorService {
         table.addCell(crearCelda("Subtotal", fontCuerpo, true));
 
         // Detalles
-        for (VentaDetalleDTO detalle : venta.getDetalleventas()) {
-            Medicamento medicamento = medicamentoRepo.findById(detalle.getMedicamentoId())
+        for (VentaDetalleDTO detalle : venta.detalleventas()) {
+            Medicamento medicamento = medicamentoRepo.findById(detalle.medicamentoId())
                     .orElseThrow(() -> new RuntimeException("Medicamento no encontrado"));
 
             table.addCell(crearCelda(medicamento.getNombre(), fontCuerpo, false));
-            table.addCell(crearCelda(String.valueOf(detalle.getCantidad()), fontCuerpo, false));
-            table.addCell(crearCelda("$" + detalle.getPrecioUnitario(), fontCuerpo, false));
-            table.addCell(crearCelda("$" + (detalle.getCantidad() * detalle.getPrecioUnitario()), fontCuerpo, false));
+            table.addCell(crearCelda(String.valueOf(detalle.cantidad()), fontCuerpo, false));
+            table.addCell(crearCelda("$" + detalle.precioUnitario(), fontCuerpo, false));
+            table.addCell(crearCelda("$" + (detalle.cantidad() * detalle.precioUnitario()), fontCuerpo, false));
         }
 
         document.add(table);
         document.add(new Paragraph(" "));
 
         // Total
-        Paragraph total = new Paragraph("Total: $" + venta.getTotal(), fontTitulo);
+        Paragraph total = new Paragraph("Total: $" + venta.total(), fontTitulo);
         total.setAlignment(Paragraph.ALIGN_RIGHT);
         document.add(total);
     }

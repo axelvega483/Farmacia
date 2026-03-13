@@ -1,6 +1,7 @@
 package com.proyecto.farmacia.DTOs.Ventas;
 
 import com.proyecto.farmacia.entity.*;
+import com.proyecto.farmacia.util.EstadoVenta;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,39 +10,43 @@ import java.util.List;
 public class VentaMapper {
 
     public VentaGetDTO toDTO(Venta venta) {
-        VentaGetDTO dto = new VentaGetDTO();
-        dto.setActivo(venta.getActivo());
-        dto.setCliente(venta.getCliente().getId());
-        dto.setEmpleado(venta.getEmpleado().getId());
-        dto.setFecha(venta.getFecha());
-        dto.setId(venta.getId());
-        dto.setTotal(venta.getTotal());
-        dto.setEstado(venta.getEstado());
-
         List<VentaDetalleDTO> detalles = venta.getDetalleventas().stream()
                 .map(detalle -> new VentaDetalleDTO(
                         detalle.getMedicamento().getId(),
                         detalle.getCantidad(),
                         detalle.getPrecioUnitario(),
                         detalle.getCantidad() * detalle.getPrecioUnitario())).toList();
-        dto.setDetalleventas(detalles);
-        return dto;
+
+        return new VentaGetDTO(
+                venta.getId(),
+                venta.getFecha(),
+                venta.getTotal(),
+                detalles,
+                venta.getCliente().getId(),
+                venta.getEmpleado().getId(),
+                venta.isActivo(),
+                venta.getEstado()
+        );
     }
 
-    public Venta toEntity(VentaPostDTO post, Cliente cliente, Empleado empleado, List<DetalleVenta> detalles) {
-        Venta venta = new Venta();
-        venta.setCliente(cliente);
-        venta.setEmpleado(empleado);
-        venta.setFecha(post.getFecha());
-        venta.setDetalleventas(detalles);
-        venta.setTotal(calcularTotal(detalles));
-        return venta;
+    public Venta toEntity(VentaPostDTO post, Cliente cliente, Usuario empleado, List<DetalleVenta> detalles) {
+       return Venta.builder()
+               .cliente(cliente)
+               .empleado(empleado)
+               .fecha(post.fecha())
+               .detalleventas(detalles)
+               .total(calcularTotal(detalles))
+               .activo(true)
+               .estado(EstadoVenta.FACTURADA)
+               .build();
     }
+
+
 
     public DetalleVenta toDetalleVenta(VentaDetalleDTO detalleDTO, Medicamento medicamento) {
         DetalleVenta detalle = new DetalleVenta();
-        detalle.setCantidad(detalleDTO.getCantidad());
-        detalle.setPrecioUnitario(detalleDTO.getPrecioUnitario());
+        detalle.setCantidad(detalleDTO.cantidad());
+        detalle.setPrecioUnitario(detalleDTO.precioUnitario());
         detalle.setMedicamento(medicamento);
         return detalle;
     }
@@ -50,5 +55,8 @@ public class VentaMapper {
         return detalles.stream()
                 .mapToDouble(detalle -> detalle.getCantidad() * detalle.getPrecioUnitario())
                 .sum();
+    }
+    public List<VentaGetDTO> toDTOList(List<Venta> ventas) {
+        return ventas.stream().filter(Venta::isActivo).map(this::toDTO).toList();
     }
 }

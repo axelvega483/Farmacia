@@ -1,24 +1,22 @@
 package com.proyecto.farmacia.DTOs.Medicamentos;
 
+import com.proyecto.farmacia.DTOs.Proveedor.ProveedorBasicDTO;
 import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
 
 import java.time.LocalDate;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class MedicamentosGetDTO {
+public record MedicamentosGetDTO(
+         Integer id,
+         String nombre,
+         String descripcion,
+         Double precio,
+         Integer stock,
+         LocalDate fechaVencimiento,
+         Boolean recetaRequerida,
+         Boolean activo,
+         ProveedorBasicDTO proveedor,
+         List<MedicamentoDetalleDTO> detalleVentasID) {
 
-    private Integer id;
-    private String nombre;
-    private String descripcion;
-    private Double precio;
-    private Integer stock;
-    private LocalDate fechaVencimiento;
-    private Boolean recetaRequerida;
-    private Boolean activo;
-    private ProveedorGetDTO proveedor;
-     private List<MedicamentoDetalleDTO> detalleVentasID;
+
 }

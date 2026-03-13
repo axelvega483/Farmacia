@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -36,7 +37,8 @@ public class ClienteController {
     @Autowired
     private ClienteInterfaz clienteService;
 
-    @Operation(summary = "Listar todos los clientes", description = "Devuelve una lista con todos los clientes registrados")
+    @Operation(summary = "Listar todos los clientes",
+            description = "Devuelve una lista con todos los clientes registrados")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Clientes listados correctamente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -44,10 +46,11 @@ public class ClienteController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<ClientesGetDTO> dto = clienteService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Clientes", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomApiResponse<>("Clientes obtenidos correctamente", dto, true), HttpStatus.OK);
     }
 
-    @Operation(summary = "Obtener cliente por ID", description = "Devuelve un cliente específico basado en su ID")
+    @Operation(summary = "Obtener cliente por ID",
+            description = "Devuelve un cliente específico basado en su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente encontrado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
@@ -57,18 +60,16 @@ public class ClienteController {
     public ResponseEntity<?> findById(
             @Parameter(description = "ID del cliente a buscar", example = "1", required = true)
             @PathVariable Integer id) {
-        ClientesGetDTO cliente = clienteService.findById(id).orElse(null);
-        if (cliente != null) {
-            return new ResponseEntity<>(new CustomApiResponse<>("Cliente encontrado por id", cliente, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("No existe cliente", null, false), HttpStatus.NOT_FOUND);
-        }
+        ClientesGetDTO dto = clienteService.findById(id).orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+        return new ResponseEntity<>(new CustomApiResponse<>("Cliente encontrado por id", dto, true), HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear nuevo cliente", description = "Crea un nuevo cliente en el sistema")
+    @Operation(summary = "Crear nuevo cliente",
+            description = "Crea un nuevo cliente en el sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cliente creado exitosamente"),
+            @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "409", description = "Cliente ya existente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping
@@ -76,10 +77,11 @@ public class ClienteController {
             @Parameter(description = "Datos del cliente a crear", required = true)
             @Valid @RequestBody ClientePostDTO clienteDTO) {
         ClientesGetDTO dto = clienteService.create(clienteDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Cliente cargado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomApiResponse<>("Cliente creado", dto, true), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Actualizar cliente existente", description = "Actualiza la información de un cliente existente")
+    @Operation(summary = "Actualizar cliente existente",
+            description = "Actualiza la información de un cliente existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente actualizado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
@@ -90,13 +92,16 @@ public class ClienteController {
     public ResponseEntity<?> update(
             @Parameter(description = "ID del cliente a actualizar", example = "1", required = true)
             @PathVariable Integer id,
+
             @Parameter(description = "Datos actualizados del cliente", required = true)
             @Valid @RequestBody ClienteUpdateDTO clienteDTO) {
+
         ClientesGetDTO dto = clienteService.update(id, clienteDTO);
         return new ResponseEntity<>(new CustomApiResponse<>("Cliente actualizado", dto, true), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar cliente", description = "Elimina un cliente del sistema basado en su ID")
+    @Operation(summary = "Eliminar cliente",
+            description = "Desactiva un cliente del sistema basado en su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente eliminado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
@@ -106,12 +111,7 @@ public class ClienteController {
     public ResponseEntity<?> delete(
             @Parameter(description = "ID del cliente a eliminar", example = "1", required = true)
             @PathVariable Integer id) {
-        ClientesGetDTO cliente = clienteService.findById(id).orElse(null);
-        if (cliente != null) {
-            clienteService.delete(cliente.getId());
-            return new ResponseEntity<>(new CustomApiResponse<>("Cliente eliminado", null, true), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("Cliente no encontrado", null, false), HttpStatus.NOT_FOUND);
-        }
+        clienteService.delete(id);
+        return new ResponseEntity<>( new CustomApiResponse<>("Cliente eliminado correctamente", null, true), HttpStatus.OK);
     }
 }

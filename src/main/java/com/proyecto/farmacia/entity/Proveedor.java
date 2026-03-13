@@ -14,13 +14,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import lombok.*;
+
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
@@ -52,10 +54,9 @@ public class Proveedor implements Serializable {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo;
 
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Medicamento> medicamentos;
+    private Set<Medicamento> medicamentos= new HashSet<>();
 }

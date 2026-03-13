@@ -8,11 +8,11 @@ import com.proyecto.farmacia.entity.Cliente;
 import com.proyecto.farmacia.interfaz.ClienteInterfaz;
 import com.proyecto.farmacia.repository.ClienteRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,56 +27,45 @@ public class ClienteService implements ClienteInterfaz {
 
     @Override
     public ClientesGetDTO create(ClientePostDTO post) {
-        if(findDniActivo(post.getDni())){
+        if(findDniActivo(post.dni())){
             throw new EntityExistsException("Cliente ya existente");
         }
-        Cliente cliente = mapper.create(post);
+        Cliente cliente = mapper.toEntity(post);
         Cliente saved = repo.save(cliente);
         return mapper.toDTO(saved);
     }
 
     @Override
     public void delete(Integer id) {
-        Optional<Cliente> optionalCliente = repo.findById(id);
-        if (optionalCliente.isPresent()) {
-            Cliente cliente = optionalCliente.get();
-            cliente.setActivo(Boolean.FALSE);
-            repo.save(cliente);
-        }
+        Cliente cliente = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+        cliente.setActivo(false);
+        repo.save(cliente);
     }
 
     @Override
     public Optional<ClientesGetDTO> findById(Integer id) {
-        Optional<Cliente> cliente = repo.findById(id).filter(Cliente::getActivo);
-        if (cliente.isPresent()) {
-            ClientesGetDTO dto = mapper.toDTO(cliente.get());
-            return Optional.of(dto);
-        }
-        return Optional.empty();
+        Cliente cliente = repo.findById(id)
+                .filter(Cliente::isActivo)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+
+        return Optional.of(mapper.toDTO(cliente));
     }
 
     @Override
     public List<ClientesGetDTO> findAll() {
-        List<Cliente> clientes = repo.findAll();
-        List<ClientesGetDTO> dtos = new ArrayList<>();
-        for (Cliente cliente : clientes) {
-            ClientesGetDTO dto = mapper.toDTO(cliente);
-            dtos.add(dto);
-        }
-        return dtos;
+       return mapper.toDTOList(repo.findAll());
     }
     
     public boolean findDniActivo(String dni){
-        return repo.findByDniAndActivo(dni).isPresent();
+        return repo.existsByDniAndActivoTrue(dni);
     }
 
     @Override
     public ClientesGetDTO update(Integer id, ClienteUpdateDTO put) {
-        Cliente cliente = repo.findById(id).orElse(null);
-        if (cliente == null) {
-            throw new EntityExistsException("El Cliente no existe");
-        }
-        cliente = mapper.update(cliente, put);
+        Cliente cliente = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+        cliente = mapper.fromUpdateDTO(cliente, put);
         Cliente saved = repo.save(cliente);
         return mapper.toDTO(saved);
     }

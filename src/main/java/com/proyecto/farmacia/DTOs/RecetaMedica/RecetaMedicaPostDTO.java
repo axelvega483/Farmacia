@@ -1,24 +1,18 @@
 package com.proyecto.farmacia.DTOs.RecetaMedica;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class RecetaMedicaPostDTO {
+public record RecetaMedicaPostDTO(
+        @NotNull
+        String medico,
+        @NotNull
+        Integer cliente,
+        @NotNull
+        List<Integer> medicamentoIds,
+        @NotNull
+        LocalDate vigenteHasta) {
 
-    @NotNull
-    private String medico;
-
-    @NotNull
-    private Integer cliente;
-
-    @NotNull
-    private List<Integer> medicamentoIds;
-
-    @NotNull
-    private LocalDate vigenteHasta;
 }

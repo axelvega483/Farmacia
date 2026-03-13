@@ -10,21 +10,14 @@ import java.util.List;
 public class ClienteMapper {
 
     public ClientesGetDTO toDTO(Cliente cliente) {
-        ClientesGetDTO dto = new ClientesGetDTO();
-        dto.setNombre(cliente.getNombre());
-        dto.setEmail(cliente.getEmail());
-        dto.setId(cliente.getId());
-        dto.setActivo(cliente.getActivo());
-        dto.setDni(cliente.getDni());
-
         List<ClienteVentaDTO> ventas = cliente.getVentas().stream()
+                .filter(venta -> venta.isActivo())
                 .map(venta -> new ClienteVentaDTO(
                         venta.getId(),
                         venta.getFecha(),
                         venta.getTotal()
                 ))
                 .toList();
-        dto.setVentas(ventas);
 
         List<ClienteRecetasDTO> recetas = cliente.getRecetas().stream()
                 .map(receta -> new ClienteRecetasDTO(
@@ -33,27 +26,37 @@ public class ClienteMapper {
                         receta.getMedico(),
                         receta.getVigenteHasta())).toList();
 
-        dto.setRecetas(recetas);
-        return dto;
+        return new ClientesGetDTO(
+                cliente.getId(),
+                cliente.getNombre(),
+                cliente.getEmail(),
+                cliente.getDni(),
+                cliente.isActivo(),
+                recetas,
+                ventas);
+    }
+
+    public Cliente toEntity(ClientePostDTO post) {
+        return Cliente.builder()
+                .dni(post.dni())
+                .email(post.email())
+                .nombre(post.nombre())
+                .recetas(Collections.emptyList())
+                .ventas(Collections.emptyList())
+                .activo(true)
+                .build();
 
     }
 
-    public Cliente create(ClientePostDTO post) {
-        Cliente cliente = new Cliente();
-        cliente.setActivo(Boolean.TRUE);
-        cliente.setDni(post.getDni());
-        cliente.setEmail(post.getEmail());
-        cliente.setNombre(post.getNombre());
-        cliente.setRecetas(Collections.emptyList());
-        cliente.setVentas(Collections.emptyList());
+    public Cliente fromUpdateDTO(Cliente cliente, ClienteUpdateDTO put) {
+        if (put.dni() != null) cliente.setDni(put.dni());
+        if (put.email() != null) cliente.setEmail(put.email());
+        if (put.nombre() != null) cliente.setNombre(put.nombre());
+        if (put.activo() != null) cliente.setActivo(put.activo());
         return cliente;
     }
 
-    public Cliente update(Cliente cliente, ClienteUpdateDTO put) {
-        if (put.getDni()!= null) cliente.setDni(put.getDni());
-        if (put.getEmail() != null) cliente.setEmail(put.getEmail());
-        if (put.getNombre() != null) cliente.setNombre(put.getNombre());
-        if (put.getActivo() != null) cliente.setActivo(put.getActivo());
-        return cliente;
+    public List<ClientesGetDTO> toDTOList(List<Cliente> clientes) {
+        return clientes.stream().filter(Cliente::isActivo).map(this::toDTO).toList();
     }
 }

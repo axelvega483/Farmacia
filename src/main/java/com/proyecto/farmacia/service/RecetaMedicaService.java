@@ -18,10 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class RecetaMedicaService implements RecetaMedicaInterfaz {
 
     @Autowired
@@ -36,27 +38,27 @@ public class RecetaMedicaService implements RecetaMedicaInterfaz {
 
     @Override
     public RecetaMedicaGetDTO create(RecetaMedicaPostDTO post) {
-        Optional<Cliente> clienteOpt = clienteRepo.findById(post.getCliente());
+        Optional<Cliente> clienteOpt = clienteRepo.findById(post.cliente());
         if (!clienteOpt.isPresent()) {
             throw new EntityNotFoundException("Cliente inexistente");
         }
 
-        List<Medicamento> medicamentos = medicamentoRepo.findAllById(post.getMedicamentoIds());
+        List<Medicamento> medicamentos = medicamentoRepo.findAllById(post.medicamentoIds());
         if (medicamentos.isEmpty()) {
             throw new EntityNotFoundException("Lista de medicamentos vacía");
         }
 
-        if (medicamentos.size() != post.getMedicamentoIds().size()) {
+        if (medicamentos.size() != post.medicamentoIds().size()) {
             throw new EntityNotFoundException("Algunos medicamentos no existen");
         }
-        if (post.getVigenteHasta().isBefore(LocalDate.now())) {
+        if (post.vigenteHasta().isBefore(LocalDate.now())) {
             throw new EntityNotFoundException("La fecha de vigencia no puede ser anterior a la fecha actual");
         }
-        if (post.getMedicamentoIds().size() > 15) {
+        if (post.medicamentoIds().size() > 15) {
             throw new IllegalArgumentException("Una receta no puede tener más de 15 medicamentos");
         }
         Cliente cliente = clienteOpt.get();
-        RecetaMedica receta = mapper.create(post, medicamentos, cliente);
+        RecetaMedica receta = mapper.toEntity(post, medicamentos, cliente);
         RecetaMedica saved = repo.save(receta);
 
         return mapper.toDTO(saved);
@@ -70,61 +72,52 @@ public class RecetaMedicaService implements RecetaMedicaInterfaz {
         Cliente cliente = null;
         List<Medicamento> medicamentos = null;
 
-        if (put.getClienteId() != null) {
-            cliente = clienteRepo.findById(put.getClienteId())
+        if (put.clienteId() != null) {
+            cliente = clienteRepo.findById(put.clienteId())
                     .orElseThrow(() -> new EntityNotFoundException("Cliente no existe"));
-            receta.setCliente(cliente);
         }
 
-        if (put.getMedicamentoIds() != null && !put.getMedicamentoIds().isEmpty()) {
-            if (put.getMedicamentoIds().size() > 15) {
+        if (put.medicamentoIds() != null && !put.medicamentoIds().isEmpty()) {
+
+            if (put.medicamentoIds().size() > 15) {
                 throw new IllegalArgumentException("Una receta no puede tener más de 15 medicamentos");
             }
 
-            medicamentos = medicamentoRepo.findAllById(put.getMedicamentoIds());
-            if (medicamentos.isEmpty()) {
-                throw new EntityNotFoundException("Lista de medicamentos vacía");
-            }
-            if (medicamentos.size() != put.getMedicamentoIds().size()) {
+            medicamentos = medicamentoRepo.findAllById(put.medicamentoIds());
+
+            if (medicamentos.size() != put.medicamentoIds().size()) {
                 throw new EntityNotFoundException("Algunos medicamentos no existen");
             }
-            receta.setMedicamentos(medicamentos);
         }
-        receta = mapper.update(receta, put, cliente, medicamentos);
+
+        receta = mapper.updateEntityFromDTO(receta, put, cliente, medicamentos);
+
         RecetaMedica saved = repo.save(receta);
+
         return mapper.toDTO(saved);
     }
 
     @Override
     public Optional<RecetaMedicaGetDTO> findById(Integer id) {
-        Optional<RecetaMedica> receta = repo.findById(id).filter(RecetaMedica::getActivo);
-        if (receta.isPresent()) {
-            RecetaMedicaGetDTO dto = mapper.toDTO(receta.get());
-            return Optional.of(dto);
-        }
-
-        return Optional.empty();
+        return repo.findById(id)
+                .filter(RecetaMedica::isActivo)
+                .map(mapper::toDTO);
     }
 
     @Override
     public void delete(Integer id) {
-        Optional<RecetaMedica> recetaOptional = repo.findById(id);
-        if (recetaOptional.isPresent()) {
-            RecetaMedica recetaMedica = recetaOptional.get();
-            recetaMedica.setActivo(Boolean.FALSE);
-            repo.save(recetaMedica);
-        }
+        RecetaMedica receta = repo.findById(id)
+                .filter(RecetaMedica::isActivo)
+                .orElseThrow(() -> new EntityNotFoundException("Receta no encontrada"));
+
+        receta.setActivo(false);
+
+        repo.save(receta);
 
     }
 
     @Override
     public List<RecetaMedicaGetDTO> findAll() {
-        List<RecetaMedica> recetas = repo.findAll();
-        List<RecetaMedicaGetDTO> dtos = new ArrayList<>();
-        for (RecetaMedica receta : recetas) {
-            RecetaMedicaGetDTO dto = mapper.toDTO(receta);
-            dtos.add(dto);
-        }
-        return dtos;
+        return mapper.toDTOList(repo.findAll());
     }
 }
