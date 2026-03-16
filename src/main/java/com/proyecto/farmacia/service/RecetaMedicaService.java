@@ -89,11 +89,8 @@ public class RecetaMedicaService implements RecetaMedicaInterfaz {
                 throw new EntityNotFoundException("Algunos medicamentos no existen");
             }
         }
-
-        receta = mapper.updateEntityFromDTO(receta, put, cliente, medicamentos);
-
+        mapper.updateEntityFromDTO(receta, put, cliente, medicamentos);
         RecetaMedica saved = repo.save(receta);
-
         return mapper.toDTO(saved);
     }
 

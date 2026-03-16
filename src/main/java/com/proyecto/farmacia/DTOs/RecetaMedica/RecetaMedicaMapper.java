@@ -41,14 +41,13 @@ public class RecetaMedicaMapper {
 
     }
 
-    public RecetaMedica updateEntityFromDTO(RecetaMedica receta, RecetaMedicaUptadeDTO put, Cliente cliente, List<Medicamento> medicamentos) {
+    public void updateEntityFromDTO(RecetaMedica receta, RecetaMedicaUptadeDTO put, Cliente cliente, List<Medicamento> medicamentos) {
         if (cliente != null) receta.setCliente(cliente);
         if (put.fecha() != null) receta.setFecha(put.fecha());
         if (put.medico() != null) receta.setMedico(put.medico());
         if (put.vigenteHasta() != null) receta.setVigenteHasta(put.vigenteHasta());
         if (medicamentos != null) receta.setMedicamentos(medicamentos);
         if (put.activo() != null) receta.setActivo(put.activo());
-        return receta;
     }
 
     public List<RecetaMedicaGetDTO> toDTOList(List<RecetaMedica> recetas) {

@@ -48,12 +48,11 @@ public class ClienteMapper {
 
     }
 
-    public Cliente fromUpdateDTO(Cliente cliente, ClienteUpdateDTO put) {
+    public void fromUpdateDTO(Cliente cliente, ClienteUpdateDTO put) {
         if (put.dni() != null) cliente.setDni(put.dni());
         if (put.email() != null) cliente.setEmail(put.email());
         if (put.nombre() != null) cliente.setNombre(put.nombre());
         if (put.activo() != null) cliente.setActivo(put.activo());
-        return cliente;
     }
 
     public List<ClientesGetDTO> toDTOList(List<Cliente> clientes) {

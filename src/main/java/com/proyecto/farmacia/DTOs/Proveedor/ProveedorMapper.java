@@ -53,12 +53,11 @@ public class ProveedorMapper {
     }
 
 
-    public Proveedor updateEntityFromDTO(Proveedor proveedor, ProveedorUpdateDTO put) {
+    public void updateEntityFromDTO(Proveedor proveedor, ProveedorUpdateDTO put) {
         if (put.nombre() != null) proveedor.setNombre(put.nombre());
         if (put.email() != null) proveedor.setEmail(put.email());
         if (put.telefono() != null) proveedor.setTelefono(put.telefono());
         if (put.activo() != null) proveedor.setActivo(put.activo());
-        return proveedor;
     }
 
     public List<ProveedorGetDTO> toDTOList(List<Proveedor> proveedors) {

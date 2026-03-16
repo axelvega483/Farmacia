@@ -86,7 +86,7 @@ public class MedicamentoService implements MedicamentoInterfaz {
             proveedor = proveedorRepository.findById(put.proveedor().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
         }
-        medicamento = mapper.updateEntityFromDTO(medicamento, put, proveedor);
+        mapper.updateEntityFromDTO(medicamento, put, proveedor);
         Medicamento saved = repo.save(medicamento);
         return mapper.toDTO(saved);
     }

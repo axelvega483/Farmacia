@@ -50,7 +50,7 @@ public class UsuarioService implements UsuarioInterfaz {
     public UsuarioGetDTO update(Integer id, UsuarioUpdateDTO put) {
         Usuario usuario = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-        usuario = mapper.fromUpdateDTO(usuario, put);
+        mapper.fromUpdateDTO(usuario, put);
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return mapper.toDTO(repo.save(usuario));
     }

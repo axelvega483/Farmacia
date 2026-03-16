@@ -51,7 +51,7 @@ public class MedicamentoMapper {
                 .build();
     }
 
-    public Medicamento updateEntityFromDTO(Medicamento medicamento, MedicamentoUpdateDTO put, Proveedor proveedor) {
+    public void updateEntityFromDTO(Medicamento medicamento, MedicamentoUpdateDTO put, Proveedor proveedor) {
         if (put.activo() != null) medicamento.setActivo(put.activo());
         if (put.descripcion() != null) medicamento.setDescripcion(put.descripcion());
         if (put.fechaVencimiento() != null) medicamento.setFechaVencimiento(put.fechaVencimiento());
@@ -60,7 +60,6 @@ public class MedicamentoMapper {
         if (put.proveedor() != null) medicamento.setProveedor(proveedor);
         if (put.recetaRequerida() != null) medicamento.setRecetaRequerida(put.recetaRequerida());
         if (put.stock() != null) medicamento.setStock(put.stock());
-        return medicamento;
     }
 
     public List<MedicamentosGetDTO> toDTOList(List<Medicamento> medicamentos) {

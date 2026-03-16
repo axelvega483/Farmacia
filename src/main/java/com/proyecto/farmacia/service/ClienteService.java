@@ -65,7 +65,7 @@ public class ClienteService implements ClienteInterfaz {
     public ClientesGetDTO update(Integer id, ClienteUpdateDTO put) {
         Cliente cliente = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
-        cliente = mapper.fromUpdateDTO(cliente, put);
+        mapper.fromUpdateDTO(cliente, put);
         Cliente saved = repo.save(cliente);
         return mapper.toDTO(saved);
     }

@@ -39,10 +39,8 @@ public class ProveedorService implements ProveedorInterfaz {
         Proveedor proveedor = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
 
-        proveedor = mapper.updateEntityFromDTO(proveedor, put);
-
+        mapper.updateEntityFromDTO(proveedor, put);
         Proveedor saved = repo.save(proveedor);
-
         return mapper.toDTO(saved);
     }
 

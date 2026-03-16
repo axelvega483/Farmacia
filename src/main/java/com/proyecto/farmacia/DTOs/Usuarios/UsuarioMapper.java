@@ -43,14 +43,13 @@ public class UsuarioMapper {
                 .build();
     }
 
-    public Usuario fromUpdateDTO(Usuario usuario, UsuarioUpdateDTO put) {
+    public void fromUpdateDTO(Usuario usuario, UsuarioUpdateDTO put) {
         if (put.dni() != null) usuario.setDni(put.dni());
         if (put.email() != null) usuario.setEmail(put.email());
         if (put.nombre() != null) usuario.setNombre(put.nombre());
         if (put.password() != null) usuario.setPassword(put.password());
         if (put.rol() != null) usuario.setRol(put.rol());
         if (put.activo() != null) usuario.setActivo(put.activo());
-        return usuario;
     }
 
     public List<UsuarioGetDTO> toDTOList(List<Usuario> usuarios) {
