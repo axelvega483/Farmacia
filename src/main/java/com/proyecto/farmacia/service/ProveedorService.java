@@ -45,7 +45,7 @@ public class ProveedorService implements ProveedorInterfaz {
     }
 
     @Override
-    public void delete(Integer id) {
+    public ProveedorGetDTO delete(Integer id) {
 
         Proveedor proveedor = repo.findById(id)
                 .filter(Proveedor::isActivo)
@@ -53,6 +53,7 @@ public class ProveedorService implements ProveedorInterfaz {
 
         proveedor.setActivo(false);
         repo.save(proveedor);
+        return mapper.toDTO(proveedor);
     }
 
     @Override

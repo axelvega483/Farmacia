@@ -3,7 +3,7 @@ package com.proyecto.farmacia;
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioGetDTO;
 import com.proyecto.farmacia.entity.Usuario;
 import com.proyecto.farmacia.service.UsuarioService;
-import com.proyecto.farmacia.util.RolEmpleado;
+import com.proyecto.farmacia.util.RolUsuario;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class FarmaciaApplication {
             List<UsuarioGetDTO> empleados = empleadoService.findAll();
             if (empleados.isEmpty()) {
                 Usuario empleadoADMIN = new Usuario();
-                empleadoADMIN.setRol(RolEmpleado.ADMIN);
+                empleadoADMIN.setRol(RolUsuario.ADMIN);
                 empleadoADMIN.setNombre("ADMIN");
                 empleadoADMIN.setPassword("admin");
                 empleadoADMIN.setEmail("admin@admin.com");

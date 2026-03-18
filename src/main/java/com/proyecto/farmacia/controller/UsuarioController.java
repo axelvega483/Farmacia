@@ -2,9 +2,10 @@ package com.proyecto.farmacia.controller;
 
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioGetDTO;
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioPostDTO;
+import com.proyecto.farmacia.DTOs.Usuarios.UsuarioRolDTO;
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioUpdateDTO;
 import com.proyecto.farmacia.interfaz.UsuarioInterfaz;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +47,7 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<UsuarioGetDTO> dto = usuarioService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Usuarios obtenidos correctamente", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Usuarios obtenidos correctamente", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener usuario por ID", description = "Devuelve un usuario específico basado en su ID")
@@ -59,7 +60,7 @@ public class UsuarioController {
     public ResponseEntity<?> findById(
             @Parameter(description = "ID del usuario a buscar", example = "1", required = true) @PathVariable Integer id) {
         UsuarioGetDTO dto = usuarioService.findById(id).orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-        return new ResponseEntity<>(new CustomApiResponse<>("Usuario encontrado con éxito", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Usuario encontrado con éxito", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear nuevo usuario", description = "Registra un nuevo usuario en el sistema")
@@ -72,7 +73,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<?> create(@Parameter(description = "Datos del usuario a crear", required = true) @Valid @RequestBody UsuarioPostDTO usuarioDTO) {
         UsuarioGetDTO dto = usuarioService.create(usuarioDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Usuario creado", dto, true), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiRespons.ok("Usuario creado", dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar empleado existente", description = "Actualiza la información de un usuario existente")
@@ -85,7 +86,16 @@ public class UsuarioController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(@Parameter(description = "ID del usuario a actualizar", example = "1", required = true) @PathVariable Integer id, @Parameter(description = "Datos actualizados del usuario", required = true) @Valid @RequestBody UsuarioUpdateDTO usuarioDTO) {
         UsuarioGetDTO dto = usuarioService.update(id, usuarioDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Usuario actualizado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Usuario actualizado", dto), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Actualizar rol", description = "Cambia el rol de un usuario existente")
+    @ApiResponses(value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"), @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"), @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"), @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")})
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("{id}/rol")
+    public ResponseEntity<?> actualizarRolUsuario(@Parameter(description = "ID del usuario a actualizar", example = "1", required = true) @PathVariable Integer id, @Parameter(description = "Datos actualizados del usuario", required = true) @RequestBody UsuarioRolDTO usuarioDTO) {
+        UsuarioGetDTO dto = usuarioService.actualizarRol(id, usuarioDTO);
+        return new ResponseEntity<>(ApiRespons.ok("Rol actualizado", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Desactivar usuario", description = "Marca un usuario como inactivo en el sistema")
@@ -97,6 +107,6 @@ public class UsuarioController {
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@Parameter(description = "ID del usuario a desactivar", example = "1", required = true) @PathVariable Integer id) {
         UsuarioGetDTO dto = usuarioService.delete(id);
-        return new ResponseEntity<>(new CustomApiResponse<>("Usuario inactivo", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Usuario inactivo", dto), HttpStatus.OK);
     }
 }

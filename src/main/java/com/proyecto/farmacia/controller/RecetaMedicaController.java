@@ -2,7 +2,7 @@ package com.proyecto.farmacia.controller;
 
 import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaGetDTO;
 import com.proyecto.farmacia.interfaz.RecetaMedicaInterfaz;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaPostDTO;
 import com.proyecto.farmacia.DTOs.RecetaMedica.RecetaMedicaUptadeDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +46,7 @@ public class RecetaMedicaController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<RecetaMedicaGetDTO> recetas = recetaService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Recetas médicas", recetas, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Recetas médicas", recetas), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener receta médica por ID",
@@ -62,7 +62,7 @@ public class RecetaMedicaController {
             @PathVariable Integer id) {
         RecetaMedicaGetDTO receta = recetaService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Receta médica no encontrada"));
-        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica", receta, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Receta médica", receta), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear nueva receta médica",
@@ -77,7 +77,7 @@ public class RecetaMedicaController {
             @Parameter(description = "Datos de la receta médica", required = true)
             @Valid @RequestBody RecetaMedicaPostDTO recetaDto) {
         RecetaMedicaGetDTO dto = recetaService.create(recetaDto);
-        return new  ResponseEntity<>(new CustomApiResponse<>("Receta médica creada", dto, true),HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiRespons.ok("Receta médica creada", dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar receta médica",
@@ -95,7 +95,7 @@ public class RecetaMedicaController {
             @Parameter(description = "ID de la receta médica", example = "1", required = true)
             @PathVariable Integer id) {
         RecetaMedicaGetDTO dto = recetaService.update(id, recetaDto);
-        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica actualizada", dto, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Receta médica actualizada", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar receta médica",
@@ -109,7 +109,7 @@ public class RecetaMedicaController {
     public ResponseEntity<?> delete(
             @Parameter(description = "ID de la receta médica", example = "1", required = true)
             @PathVariable Integer id) {
-        recetaService.delete(id);
-        return new ResponseEntity<>(new CustomApiResponse<>("Receta médica eliminada", null, true),HttpStatus.OK);
+        RecetaMedicaGetDTO dto = recetaService.delete(id);
+        return new ResponseEntity<>(ApiRespons.ok("Receta médica eliminada", dto), HttpStatus.OK);
     }
 }

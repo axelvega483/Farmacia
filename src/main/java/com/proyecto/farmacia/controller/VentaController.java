@@ -15,7 +15,7 @@ import java.io.FileInputStream;
 import com.proyecto.farmacia.DTOs.Ventas.VentaGetDTO;
 import com.proyecto.farmacia.DTOs.Ventas.VentaPostDTO;
 import com.proyecto.farmacia.service.PdfGeneratorService;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import jakarta.validation.Valid;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class VentaController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<VentaGetDTO> dto = ventasService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Ventas", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Ventas", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener venta por ID", description = "Devuelve una venta específica basada en su ID")
@@ -63,9 +63,9 @@ public class VentaController {
     public ResponseEntity<?> findById(@Parameter(description = "ID de la venta a buscar", example = "1", required = true) @PathVariable Integer id) {
         VentaGetDTO venta = ventasService.findById(id).orElse(null);
         if (venta != null) {
-            return new ResponseEntity<>(new CustomApiResponse<>("Venta", venta, true), HttpStatus.OK);
+            return new ResponseEntity<>(ApiRespons.ok("Venta", venta), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new CustomApiResponse<>("No se encontro venta", null, false), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiRespons.error("No se encontro venta"), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -77,7 +77,7 @@ public class VentaController {
     @PostMapping
     public ResponseEntity<?> create(@Parameter(description = "Datos de la venta a crear", required = true) @Valid @RequestBody VentaPostDTO ventaDTO) {
         VentaGetDTO dto = ventasService.create(ventaDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Venta creada", dto, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Venta creada", dto),HttpStatus.OK);
     }
 
     @Operation(summary = "Anular venta", description = "Anula una venta existente en el sistema")
@@ -88,7 +88,7 @@ public class VentaController {
     @PutMapping("/anular/{id}")
     public ResponseEntity<?> cancel(@Parameter(description = "ID de la venta a anular", example = "1", required = true) @PathVariable Integer id) {
         VentaGetDTO venta = ventasService.cancel(id);
-        return new ResponseEntity<>(new CustomApiResponse<>("Venta anulada", venta, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Venta anulada", venta), HttpStatus.OK);
     }
 
     @Operation(
@@ -120,7 +120,7 @@ public class VentaController {
 
         if (!pdfFile.exists()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new CustomApiResponse<>("Factura no generada correctamente", null, false));
+                    .body(ApiRespons.error("Factura no generada correctamente"));
         }
 
         InputStreamResource resource;
@@ -129,7 +129,7 @@ public class VentaController {
             resource = new InputStreamResource(new FileInputStream(pdfFile));
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CustomApiResponse<>("Error al acceder al archivo PDF", null, false));
+                    .body(ApiRespons.error("Error al acceder al archivo PDF"));
         }
 
         return ResponseEntity.ok()

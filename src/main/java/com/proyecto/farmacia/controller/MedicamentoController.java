@@ -4,7 +4,7 @@ import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoPostDTO;
 import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentoUpdateDTO;
 import com.proyecto.farmacia.DTOs.Medicamentos.MedicamentosGetDTO;
 import com.proyecto.farmacia.interfaz.MedicamentoInterfaz;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +46,7 @@ public class MedicamentoController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<MedicamentosGetDTO> dto = medicamentoService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamentos obtenidos correctamente", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamentos obtenidos correctamente", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar medicamentos por nombre",
@@ -60,7 +60,7 @@ public class MedicamentoController {
             @Parameter(description = "Nombre del medicamento a buscar", example = "paracetamol", required = true)
             @PathVariable String nombre) {
         List<MedicamentosGetDTO> medicamentos = medicamentoService.findByName(nombre);
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamentos encontrados por nombre", medicamentos, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamentos encontrados por nombre", medicamentos), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener medicamento por ID",
@@ -75,7 +75,7 @@ public class MedicamentoController {
             @Parameter(description = "ID del medicamento a buscar", example = "1", required = true)
             @PathVariable Integer id) {
         MedicamentosGetDTO dto = medicamentoService.findById(id).orElseThrow(() -> new EntityNotFoundException("Medicamento no encontrado"));
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamento encontrado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamento encontrado", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear nuevo medicamento",
@@ -91,7 +91,7 @@ public class MedicamentoController {
             @Parameter(description = "Datos del medicamento a crear", required = true)
             @Valid @RequestBody MedicamentoPostDTO medicamentoDTO) {
         MedicamentosGetDTO dto = medicamentoService.create(medicamentoDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamento creado", dto, true), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamento creado", dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar medicamento existente",
@@ -110,7 +110,7 @@ public class MedicamentoController {
             @Parameter(description = "ID del medicamento a actualizar", example = "1", required = true)
             @PathVariable Integer id) {
         MedicamentosGetDTO dto = medicamentoService.update(id, medicamentoDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamento actualizado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamento actualizado", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar medicamento",
@@ -124,7 +124,7 @@ public class MedicamentoController {
     public ResponseEntity<?> delete(
             @Parameter(description = "ID del medicamento a eliminar", example = "1", required = true)
             @PathVariable Integer id) {
-        medicamentoService.delete(id);
-        return new ResponseEntity<>(new CustomApiResponse<>("Medicamento eliminado correctamente", null, true), HttpStatus.OK);
+        MedicamentosGetDTO dto =  medicamentoService.delete(id);
+        return new ResponseEntity<>(ApiRespons.ok("Medicamento eliminado correctamente", dto), HttpStatus.OK);
     }
 }

@@ -13,7 +13,7 @@ public interface MedicamentoInterfaz {
 
     boolean medicamentoExiste(String nombre, Integer proveedorId);
 
-    void delete(Integer id);
+    MedicamentosGetDTO delete(Integer id);
 
     Optional<MedicamentosGetDTO> findById(Integer id);
 

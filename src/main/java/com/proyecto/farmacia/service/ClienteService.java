@@ -36,11 +36,12 @@ public class ClienteService implements ClienteInterfaz {
     }
 
     @Override
-    public void delete(Integer id) {
+    public ClientesGetDTO delete(Integer id) {
         Cliente cliente = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
         cliente.setActivo(false);
         repo.save(cliente);
+        return mapper.toDTO(cliente);
     }
 
     @Override

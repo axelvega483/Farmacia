@@ -4,7 +4,7 @@ import com.proyecto.farmacia.DTOs.Proveedor.ProveedorGetDTO;
 import com.proyecto.farmacia.DTOs.Proveedor.ProveedorPostDTO;
 import com.proyecto.farmacia.DTOs.Proveedor.ProveedorUpdateDTO;
 import com.proyecto.farmacia.interfaz.ProveedorInterfaz;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +46,7 @@ public class ProveedorController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<ProveedorGetDTO> proveedores = proveedorService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedores obtenidos correctamente", proveedores, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Proveedores obtenidos correctamente", proveedores), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener proveedor por ID",
@@ -61,7 +61,7 @@ public class ProveedorController {
             @Parameter(description = "ID del proveedor a buscar", example = "1", required = true)
             @PathVariable Integer id) {
         ProveedorGetDTO proveedor = proveedorService.findById(id).orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
-        return new ResponseEntity<>( new CustomApiResponse<>("Proveedor encontrado", proveedor, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Proveedor encontrado", proveedor), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear nuevo proveedor",
@@ -77,7 +77,7 @@ public class ProveedorController {
             @Parameter(description = "Datos del proveedor a crear", required = true)
             @Valid @RequestBody ProveedorPostDTO proveedorDTO) {
         ProveedorGetDTO dto = proveedorService.create(proveedorDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor creado correctamente", dto, true),HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiRespons.ok("Proveedor creado correctamente", dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar proveedor existente",
@@ -96,7 +96,7 @@ public class ProveedorController {
             @Parameter(description = "ID del proveedor a actualizar", example = "1", required = true)
             @PathVariable Integer id) {
         ProveedorGetDTO dto = proveedorService.update(id, proveedorDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor actualizado correctamente", dto, true),HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Proveedor actualizado correctamente", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar proveedor",
@@ -110,7 +110,7 @@ public class ProveedorController {
     public ResponseEntity<?> delete(
             @Parameter(description = "ID del proveedor a eliminar", example = "1", required = true)
             @PathVariable Integer id) {
-        proveedorService.delete(id);
-        return new ResponseEntity<>(new CustomApiResponse<>("Proveedor eliminado correctamente", null, true),HttpStatus.OK);
+        ProveedorGetDTO dto = proveedorService.delete(id);
+        return new ResponseEntity<>(ApiRespons.ok("Proveedor eliminado correctamente", dto), HttpStatus.OK);
     }
 }

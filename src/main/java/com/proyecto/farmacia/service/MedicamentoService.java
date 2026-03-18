@@ -43,12 +43,13 @@ public class MedicamentoService implements MedicamentoInterfaz {
     }
 
     @Override
-    public void delete(Integer id) {
+    public MedicamentosGetDTO delete(Integer id) {
         Medicamento medicamento = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Medicamento no encontrado"));
 
         medicamento.setActivo(false);
         repo.save(medicamento);
+        return mapper.toDTO(medicamento);
     }
 
     @Override

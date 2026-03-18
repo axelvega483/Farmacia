@@ -2,6 +2,7 @@ package com.proyecto.farmacia.interfaz;
 
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioGetDTO;
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioPostDTO;
+import com.proyecto.farmacia.DTOs.Usuarios.UsuarioRolDTO;
 import com.proyecto.farmacia.DTOs.Usuarios.UsuarioUpdateDTO;
 import com.proyecto.farmacia.entity.Usuario;
 
@@ -15,6 +16,8 @@ public interface UsuarioInterfaz {
     UsuarioGetDTO create(UsuarioPostDTO post);
 
     UsuarioGetDTO update(Integer id, UsuarioUpdateDTO put);
+
+    UsuarioGetDTO actualizarRol(Integer id, UsuarioRolDTO put);
 
     UsuarioGetDTO delete(Integer id);
 

@@ -14,7 +14,7 @@ public interface ClienteInterfaz {
 
     ClientesGetDTO update(Integer id, ClienteUpdateDTO put);
 
-    void delete(Integer id);
+    ClientesGetDTO delete(Integer id);
 
     Optional<ClientesGetDTO> findById(Integer id);
 

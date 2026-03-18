@@ -4,7 +4,7 @@ import com.proyecto.farmacia.DTOs.Clientes.ClientePostDTO;
 import com.proyecto.farmacia.DTOs.Clientes.ClienteUpdateDTO;
 import com.proyecto.farmacia.DTOs.Clientes.ClientesGetDTO;
 import com.proyecto.farmacia.interfaz.ClienteInterfaz;
-import com.proyecto.farmacia.util.CustomApiResponse;
+import com.proyecto.farmacia.util.ApiRespons;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +46,7 @@ public class ClienteController {
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<ClientesGetDTO> dto = clienteService.findAll();
-        return new ResponseEntity<>(new CustomApiResponse<>("Clientes obtenidos correctamente", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Clientes obtenidos correctamente", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Obtener cliente por ID",
@@ -61,7 +61,7 @@ public class ClienteController {
             @Parameter(description = "ID del cliente a buscar", example = "1", required = true)
             @PathVariable Integer id) {
         ClientesGetDTO dto = clienteService.findById(id).orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
-        return new ResponseEntity<>(new CustomApiResponse<>("Cliente encontrado por id", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Cliente encontrado por id", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear nuevo cliente",
@@ -77,7 +77,7 @@ public class ClienteController {
             @Parameter(description = "Datos del cliente a crear", required = true)
             @Valid @RequestBody ClientePostDTO clienteDTO) {
         ClientesGetDTO dto = clienteService.create(clienteDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Cliente creado", dto, true), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiRespons.ok("Cliente creado", dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar cliente existente",
@@ -97,7 +97,7 @@ public class ClienteController {
             @Valid @RequestBody ClienteUpdateDTO clienteDTO) {
 
         ClientesGetDTO dto = clienteService.update(id, clienteDTO);
-        return new ResponseEntity<>(new CustomApiResponse<>("Cliente actualizado", dto, true), HttpStatus.OK);
+        return new ResponseEntity<>(ApiRespons.ok("Cliente actualizado", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar cliente",
@@ -111,7 +111,7 @@ public class ClienteController {
     public ResponseEntity<?> delete(
             @Parameter(description = "ID del cliente a eliminar", example = "1", required = true)
             @PathVariable Integer id) {
-        clienteService.delete(id);
-        return new ResponseEntity<>( new CustomApiResponse<>("Cliente eliminado correctamente", null, true), HttpStatus.OK);
+        ClientesGetDTO dto = clienteService.delete(id);
+        return new ResponseEntity<>(ApiRespons.ok("Cliente eliminado correctamente", dto), HttpStatus.OK);
     }
 }

@@ -102,15 +102,14 @@ public class RecetaMedicaService implements RecetaMedicaInterfaz {
     }
 
     @Override
-    public void delete(Integer id) {
+    public RecetaMedicaGetDTO delete(Integer id) {
         RecetaMedica receta = repo.findById(id)
                 .filter(RecetaMedica::isActivo)
                 .orElseThrow(() -> new EntityNotFoundException("Receta no encontrada"));
 
         receta.setActivo(false);
-
         repo.save(receta);
-
+        return mapper.toDTO(receta);
     }
 
     @Override

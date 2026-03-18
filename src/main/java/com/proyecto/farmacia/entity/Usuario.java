@@ -3,7 +3,7 @@ package com.proyecto.farmacia.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proyecto.farmacia.util.RolEmpleado;
+import com.proyecto.farmacia.util.RolUsuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
@@ -58,7 +58,7 @@ public class Usuario implements Serializable, UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
-    private RolEmpleado rol;
+    private RolUsuario rol;
 
     private boolean activo;
 

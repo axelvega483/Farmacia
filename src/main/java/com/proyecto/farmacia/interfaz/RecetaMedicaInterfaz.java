@@ -14,7 +14,7 @@ public interface RecetaMedicaInterfaz {
 
     Optional<RecetaMedicaGetDTO> findById(Integer id);
 
-    void delete(Integer id);
+    RecetaMedicaGetDTO delete(Integer id);
 
     List<RecetaMedicaGetDTO> findAll();
 }

@@ -13,7 +13,7 @@ public interface ProveedorInterfaz {
 
     ProveedorGetDTO update(Integer id, ProveedorUpdateDTO put);
 
-    void delete(Integer id);
+    ProveedorGetDTO delete(Integer id);
 
     Optional<ProveedorGetDTO> findById(Integer id);
 
